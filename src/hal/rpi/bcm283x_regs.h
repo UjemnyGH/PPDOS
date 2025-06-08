@@ -41,6 +41,8 @@ RPI_HAL_CSI1_END
 #ifndef _PPDOS_HAL_BCM283X_REGS_
 #define _PPDOS_HAL_BCM283X_REGS_
 
+#include "../../kernel/hal_config.h"
+
 typedef volatile unsigned char rpi_hal_io8_t;
 typedef volatile unsigned short rpi_hal_io16_t;
 typedef volatile unsigned int rpi_hal_io32_t;
@@ -50,7 +52,7 @@ typedef unsigned short rpi_hal_uint16_t;
 typedef unsigned int rpi_hal_uint32_t;
 
 /* Defined bases for different CPUs */
-#if defined(PPDOS_USE_BCM2837) || defined(PPDOS_USE_BCM2710A1) || defined(PPDOS_USE_RPI3) || defined(PPDOS_USE_RPI2) || defined(PPDOS_USE_RPI_ZERO_2_W)
+#if defined(PPDOS_USE_BCM2837) || defined(PPDOS_USE_RPI3) || defined(PPDOS_USE_RPI2) || defined(PPDOS_USE_RPI_ZERO_2_W) || defined(PPDOS_USE_BCM2710A1) 
 #define RPI_HAL_BASE  0x3F000000
 #define RPI_HAL_LOAD_FOR 3
 #elif defined(PPDOS_USE_BCM7211) || defined(PPDOS_USE_RPI4)
@@ -59,9 +61,11 @@ typedef unsigned int rpi_hal_uint32_t;
 #elif defined(PPDOS_USE_BCM7212) || defined(PPDOS_USE_RPI5)
 #define RPI_HAL_BASE  0x107C000000UL
 #define RPI_HAL_LOAD_FOR 5
-#else
+#elif defined(PPDOS_USE_BCM2835) || defined(PPDOS_USE_RPI1)
 #define RPI_HAL_BASE  0x20000000
 #define RPI_HAL_LOAD_FOR 1
+#else
+#warning Define your Raspberry Pi/CPU version
 #endif
 
 #if defined(PPDOS_USE_BCM7212) || defined(PPDOS_USE_RPI5)

@@ -36,7 +36,10 @@ rpi_hal_uint32_t rpi_hal_sd_hci_sendCommand(const rpi_hal_uint32_t command, cons
   if(!rpi_hal_sd_hci_waitForCommandReady())
     return 0;
 
-  sdhci.argument = arg;
+  if(command & eMMC_command_app_preeraseBlocksForWrite_arg)
+    sdhci.argument2 = arg;
+  else
+    sdhci.argument = arg;
   sdhci.command = command;
 
   for(rpi_hal_uint32_t i = 0; i < sdHciTimeout; i++) {
@@ -56,7 +59,7 @@ rpi_hal_uint32_t rpi_hal_sd_hci_readBlock(const rpi_hal_uint32_t logicalBlockAdd
 
   sdhci.blockCount = 1;
   sdhci.blockSize = sdHciCardBlockSize;
-  sdhci.transferMode &= ~sdhci_transferMode_write;
+  sdhci.transferMode = sdhci_transferMode_read;
 
   if(!rpi_hal_sd_hci_sendCommand(eMMC_command_readSingleBlock_arg | sdhci_command_responseLong, logicalBlockAddr))
     return 0;
@@ -77,7 +80,7 @@ rpi_hal_uint32_t rpi_hal_sd_hci_writeBlock(const rpi_hal_uint32_t logicalBlockAd
 
   sdhci.blockCount = 1;
   sdhci.blockSize = sdHciCardBlockSize;
-  sdhci.transferMode = sdhci_transferMode_write;
+  sdhci.transferMode &= ~sdhci_transferMode_read;
 
   if(!rpi_hal_sd_hci_sendCommand(eMMC_command_writeSingleBlock_arg | sdhci_command_responseLong, logicalBlockAddr))
     return 0;
@@ -98,7 +101,7 @@ rpi_hal_uint32_t rpi_hal_sd_hci_readMultipleBlocks(const rpi_hal_uint32_t logica
 
   sdhci.blockCount = count;
   sdhci.blockSize = sdHciCardBlockSize;
-  sdhci.transferMode = sdhci_transferMode_blockCountEnable | sdhci_transferMode_multiBlock | sdhci_transferMode_autoCMD12StopTrans;
+  sdhci.transferMode = sdhci_transferMode_read | sdhci_transferMode_blockCountEnable | sdhci_transferMode_multiBlock | sdhci_transferMode_autoCMD12StopTrans;
 
   if(!rpi_hal_sd_hci_sendCommand(eMMC_command_readMultipleBlocks_arg | sdhci_command_responseLong, logicalBlockAddr))
     return 0;
@@ -122,7 +125,7 @@ rpi_hal_uint32_t rpi_hal_sd_hci_writeMultipleBlocks(const rpi_hal_uint32_t logic
   
   sdhci.blockCount = count;
   sdhci.blockSize = sdHciCardBlockSize;
-  sdhci.transferMode = sdhci_transferMode_write | sdhci_transferMode_blockCountEnable | sdhci_transferMode_multiBlock | sdhci_transferMode_autoCMD12StopTrans;
+  sdhci.transferMode = sdhci_transferMode_blockCountEnable | sdhci_transferMode_multiBlock | sdhci_transferMode_autoCMD12StopTrans;
 
   if(!rpi_hal_sd_hci_sendCommand(eMMC_command_writeMultipleBlocks_arg | sdhci_command_responseLong, logicalBlockAddr))
     return 0;

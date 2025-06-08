@@ -353,27 +353,27 @@ void rpi_hal_gpio_setFunction(const rpi_hal_uint8_t pin, const enum rpi_hal_gpio
 
 void rpi_hal_gpio_setSpecialAltFunction(const enum rpi_hal_gpio_functionSelect_allAltFunctions function);
 
-void rpi_hal_gpio_setOutputSet(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setOutputSet(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setOutputClear(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setOutputClear(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinEventDetectStatus(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinEventDetectStatus(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinRisingEdgeDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinRisingEdgeDetectEnable(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinFallingEdgeDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinFallingEdgeDetectEnable(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinHighDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinHighDetectEnable(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinLowDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinLowDetectEnable(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinAsyncRisingEdgeDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinAsyncRisingEdgeDetectEnable(const rpi_hal_uint8_t pin);
 
-void rpi_hal_gpio_setPinAsyncFallingEdgeDetectEnable(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinAsyncFallingEdgeDetectEnable(const rpi_hal_uint8_t pin);
 
 void rpi_hal_gpio_setPullEnable(const enum rpi_hal_gpio_pinPullEnable pull);
 
-void rpi_hal_gpio_setPinPullEnableClock(const rpi_hal_uint8_t pin, const rpi_hal_uint32_t state);
+void rpi_hal_gpio_setPinPullEnableClock(const rpi_hal_uint8_t pin);
 
 rpi_hal_uint32_t rpi_hal_gpio_getPinLevel(const rpi_hal_uint8_t pin);
 

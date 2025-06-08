@@ -58,25 +58,26 @@ typedef struct rpi_hal_sd_hci_s {
 } __attribute__((packed)) rpi_hal_sd_hci_t;
 
 enum rpi_hal_sd_hci_transferMode {
-  sdhci_transferMode_dma                = 0x01,
   sdhci_transferMode_blockCountEnable   = 0x02,
   sdhci_transferMode_autoCMD12StopTrans = 0x04,
-  sdhci_transferMode_multiBlock         = 0x10,
-  sdhci_transferMode_write              = 0x20
+  sdhci_transferMode_read               = 0x10,
+  sdhci_transferMode_multiBlock         = 0x20
 };
 
 enum rpi_hal_sd_hci_command {
-  sdhci_command_responseNone          = 0x0000,
-  sdhci_command_responseLong          = 0x0100,
-  sdhci_command_responseShort         = 0x0200,
-  sdhci_command_responseShortBusy     = 0x0300,
+  sdhci_command_responseNone          = 0x00,
+  sdhci_command_responseLong          = 0x01,
+  sdhci_command_responseShort         = 0x02,
+  sdhci_command_responseShortBusy     = 0x03,
   
-  sdhci_command_responseMask          = 0x0300,
+  sdhci_command_responseMask          = 0x03,
 
-  sdhci_command_crc                   = 0x0800,
-  sdhci_command_index                 = 0x1000,
-  sdhci_command_data                  = 0x2000,
-  sdhci_command_abortCommand          = 0xC000
+  sdhci_command_crc                   = 0x08,
+  sdhci_command_index                 = 0x10,
+  sdhci_command_data                  = 0x20,
+  sdhci_command_suspend               = 0x40,
+  sdhci_command_resume                = 0x80,
+  sdhci_command_abortCommand          = 0xC0
 };
 
 enum rpi_hal_sd_hci_presentState {
@@ -274,43 +275,43 @@ enum rpi_hal_sd_hci_hostVersion {
 enum rpi_hal_eMMC_commands {
   /* General purpose commands */
 
-  eMMC_command_goIdleState                    = 0,    /*Arg = 0; software reset*/
-  eMMC_command_sendOpCond_arg                 = 1,    /*Arg = voltage range (MMC only, SD uses ACMD41)*/
-  eMMC_command_allSendCardID                  = 2,    /*Arg = 0; request CID from all cards*/
-  eMMC_command_sendRelativeCardAddr           = 3,    /*Arg = 0 or rca; assing rca (default SD RCA = 0x1)*/
-  eMMC_command_setDriverStrength_arg          = 4,    /*Arg = 16bit DSR << 16*/
-  eMMC_command_switchFunction_arg             = 6,    /*Arg = func specific value; SD: select bus speed*/
-  eMMC_command_select_arg                     = 7,    /*Arg = RCA << 16; select or deselect card*/
-  eMMC_command_sendIfCond_arg                 = 8,    /*Arg = 0x1AA; checks voltage range and pattern (SD 2.0+)*/
-  eMMC_command_sendCSD_arg                    = 9,    /*Arg = RCA << 16; get CSD reg*/
-  eMMC_command_sendCardID_arg                 = 10,   /*Arg = RCA << 16; get Card ID reg*/
-  eMMC_command_voltageSwitch180               = 11,   /*Arg = 0; set voltage to 1.8V for I/O*/
-  eMMC_command_stopTransmission               = 12,   /*Arg = 0; end multiblock transfer*/
-  eMMC_command_sendStatus_arg                 = 13,   /*Arg = RCA << 16; ask sd for status*/
-  eMMC_command_setBlockLength_arg             = 16,   /*Arg = block size (eg. 512); set block length (SDHC/SDXC ignore)*/
-  eMMC_command_readSingleBlock_arg            = 17,   /*Arg = block address; read single block*/
-  eMMC_command_readMultipleBlocks_arg         = 18,   /*Arg = block address; read multiple blocks*/
-  eMMC_command_writeSingleBlock_arg           = 24,   /*Arg = block address; write single block*/
-  eMMC_command_writeMultipleBlocks_arg        = 25,   /*Arg = block address; write multiple blocks*/
-  eMMC_command_programCSD                     = 27,   /*Arg = 0; modify programable bits in CSD*/
-  eMMC_command_setWriteProtection_arg         = 28,   /*Arg = block address; set write protection*/
-  eMMC_command_clearWriteProtection_arg       = 29,   /*Arg = block address; clear write protection*/
-  eMMC_command_sendWriteProtectionStatus_arg  = 30,   /*Arg = block address; check if block is write protected*/
-  eMMC_command_eraseBlockStart_arg            = 32,   /*Arg = start block address; start of erase range*/
-  eMMC_command_eraseBlockEnd_arg              = 33,   /*Arg = end block address; end of erase range*/
-  eMMC_command_erase                          = 38,   /*Arg = 0; erase selected between eraseBlockStart_arg and eraseBlockEnd_arg range*/
-  eMMC_command_nextCommandAppSpecific_arg     = 55,   /*Arg = RCA << 16 or 0 if idle; must be used before any command_app (ACMD)*/
-  eMMC_command_nextCommandGeneralPurpose_arg  = 56,   /*Arg = something; general purpose commands*/
+  eMMC_command_goIdleState                    = 0x0000,   /*Arg = 0; software reset*/
+  eMMC_command_sendOpCond_arg                 = 0x0100,   /*Arg = voltage range (MMC only, SD uses ACMD41)*/
+  eMMC_command_allSendCardID                  = 0x0200,   /*Arg = 0; request CID from all cards*/
+  eMMC_command_sendRelativeCardAddr           = 0x0300,   /*Arg = 0 or rca; assing rca (default SD RCA = 0x1)*/
+  eMMC_command_setDriverStrength_arg          = 0x0400,   /*Arg = 16bit DSR << 16*/
+  eMMC_command_switchFunction_arg             = 0x0600,   /*Arg = func specific value; SD: select bus speed*/
+  eMMC_command_select_arg                     = 0x0700,   /*Arg = RCA << 16; select or deselect card*/
+  eMMC_command_sendIfCond_arg                 = 0x0800,   /*Arg = 0x1AA; checks voltage range and pattern (SD 2.0+)*/
+  eMMC_command_sendCSD_arg                    = 0x0900,   /*Arg = RCA << 16; get CSD reg*/
+  eMMC_command_sendCardID_arg                 = 0x0A00,   /*Arg = RCA << 16; get Card ID reg*/
+  eMMC_command_voltageSwitch180               = 0x0B00,   /*Arg = 0; set voltage to 1.8V for I/O*/
+  eMMC_command_stopTransmission               = 0x0C00,   /*Arg = 0; end multiblock transfer*/
+  eMMC_command_sendStatus_arg                 = 0x0D00,   /*Arg = RCA << 16; ask sd for status*/
+  eMMC_command_setBlockLength_arg             = 0x1000,   /*Arg = block size (eg. 512); set block length (SDHC/SDXC ignore)*/
+  eMMC_command_readSingleBlock_arg            = 0x1100,   /*Arg = block address; read single block*/
+  eMMC_command_readMultipleBlocks_arg         = 0x1200,   /*Arg = block address; read multiple blocks*/
+  eMMC_command_writeSingleBlock_arg           = 0x1800,   /*Arg = block address; write single block*/
+  eMMC_command_writeMultipleBlocks_arg        = 0x1900,   /*Arg = block address; write multiple blocks*/
+  eMMC_command_programCSD                     = 0x1B00,   /*Arg = 0; modify programable bits in CSD*/
+  eMMC_command_setWriteProtection_arg         = 0x1C00,   /*Arg = block address; set write protection*/
+  eMMC_command_clearWriteProtection_arg       = 0x1D00,   /*Arg = block address; clear write protection*/
+  eMMC_command_sendWriteProtectionStatus_arg  = 0x1E00,   /*Arg = block address; check if block is write protected*/
+  eMMC_command_eraseBlockStart_arg            = 0x2000,   /*Arg = start block address; start of erase range*/
+  eMMC_command_eraseBlockEnd_arg              = 0x2100,   /*Arg = end block address; end of erase range*/
+  eMMC_command_erase                          = 0x2600,   /*Arg = 0; erase selected between eraseBlockStart_arg and eraseBlockEnd_arg range*/
+  eMMC_command_nextCommandAppSpecific_arg     = 0x4700,   /*Arg = RCA << 16 or 0 if idle; must be used before any command_app (ACMD)*/
+  eMMC_command_nextCommandGeneralPurpose_arg  = 0x4800,   /*Arg = something; general purpose commands*/
 
   /* Application specific commands */
 
-  eMMC_command_app_setBusWidth_arg            = 6,    /*Arg = 0 - 1bit, 2 - 4bit; set bus width*/
-  eMMC_command_app_sdStatus                   = 13,   /*Arg = 0; get sd status*/
-  eMMC_command_app_sendWriteBlocksNumber      = 22,   /*Arg = 0; sends info about how many blocks will be written*/
-  eMMC_command_app_preeraseBlocksForWrite_arg = 23,   /*Arg = count; pre erase blocks for multiple write*/
-  eMMC_command_app_sendHostCapacitySupport_arg = 41,  /*Arg = OCR + HCS + (S18R if 1.8V); SD card initialization (must poll)*/
-  eMMC_command_app_pullUpResistorOnCD_DAT3_arg = 42,  /*Arg = 0 - connect pullup; Control DAT3/CD*/
-  eMMC_command_app_getSDConfigRegister        = 51    /*Arg = 0; read sd config register (SCR)*/
+  eMMC_command_app_setBusWidth_arg            = 0x0600,   /*Arg = 0 - 1bit, 2 - 4bit; set bus width*/
+  eMMC_command_app_sdStatus                   = 0x0D00,   /*Arg = 0; get sd status*/
+  eMMC_command_app_sendWriteBlocksNumber      = 0x1600,   /*Arg = 0; sends info about how many blocks will be written*/
+  eMMC_command_app_preeraseBlocksForWrite_arg = 0x1700,   /*Arg = count; pre erase blocks for multiple write*/
+  eMMC_command_app_sendHostCapacitySupport_arg = 0x2900,  /*Arg = OCR + HCS + (S18R if 1.8V); SD card initialization (must poll)*/
+  eMMC_command_app_pullUpResistorOnCD_DAT3_arg = 0x2A00,  /*Arg = 0 - connect pullup; Control DAT3/CD*/
+  eMMC_command_app_getSDConfigRegister        = 0x4300    /*Arg = 0; read sd config register (SCR)*/
 };
 
 #define sdhci       (*(rpi_hal_sd_hci_t*)RPI_HAL_SD_CTL_BASE)

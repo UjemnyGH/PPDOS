@@ -1,16 +1,25 @@
-.section .text
-.arm
+.section .text.boot
 .global _start
-.align 2
 
 _start:
-  ldr sp, =stack_top
+  mrs x1, mpidr_el1
+  and x1, x1, #3
+  cbz x1, 2f
 
-  bl kernel_main
+1: wfe
+  b 1b
+2:
+  ldr x1, =_start
+  mov sp, x1
 
-hang:
-  b hang
+  ldr x1, =__bss_start
+  ldr w2, =__bss_size
+3: cbz w2, 4f
+  str xzr, [x1], #8
+  sub w2, w2, #1
+  cbnz w2, 3b
 
-.section .bss
-  .space 4096
-stack_top:
+
+4:  bl kernel_main
+
+  b 1b
