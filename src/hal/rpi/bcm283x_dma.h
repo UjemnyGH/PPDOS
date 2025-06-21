@@ -55,11 +55,22 @@ enum rpi_hal_dma_transferInfo {
 
   dma_transferInfo_srcAddrIncrement       = 0x00000100,
   dma_transferInfo_srcTransferWide        = 0x00000200,
-  dma_transferInfo_cltSrcReadWithDaraReq  = 0x00000400,
+  dma_transferInfo_ctlSrcReadWithDataReq  = 0x00000400,
   dma_transferInfo_ignoreReads            = 0x00000800,
 
   dma_transferInfo_burstTransferLenMask   = 0x0000F000,
+  
+  dma_transferInfo_pcmI2STransmitMapping  = 0x00020000,
+  dma_transferInfo_pcmI2SReceiveMapping   = 0x00030000,
+  dma_transferInfo_spi0TransmitMapping    = 0x00060000,
+  dma_transferInfo_spi0ReceiveMapping     = 0x00070000,
+  dma_transferInfo_spi1TransmitMapping    = 0x00080000,
+  dma_transferInfo_spi1ReceiveMapping     = 0x00090000,
+  dma_transferInfo_spi2TransmitMapping    = 0x000A0000,
+  dma_transferInfo_spi2ReceiveMapping     = 0x000B0000,
+
   dma_transferInfo_peripheralMappingMask  = 0x001F0000,
+
   dma_transferInfo_waitCycleMask          = 0x03E00000,
   
   dma_transferInfo_noWideBurst            = 0x04000000,   /* Only for dma 0-6 */
@@ -99,7 +110,19 @@ enum rpi_hal_dma_debug {
 };
 
 /* Direct Memory Access registers accessed by id, possible values are between 0-14 */
-#define dma(id)             (*(rpi_hal_dma_t*)(RPI_HAL_DMA_BASE + (0x100 * id)))
+#define dma(id)             (*(rpi_hal_dma_t*)((unsigned long long)(RPI_HAL_DMA_BASE + (0x100 * id))))
 #define dmaStatus           (*(rpi_hal_dma_status_t*)(RPI_HAL_DMA_BASE + 0x0FE0))
+
+void rpi_hal_dma_init(rpi_hal_uint8_t dmaChannel);
+
+void rpi_hal_dma_setupTransfer(rpi_hal_uint8_t dmaChannel, const void* pSrc, void *pDst, rpi_hal_uint32_t length);
+
+void rpi_hal_dma_transferInfo(rpi_hal_uint8_t dmaChannel, const enum rpi_hal_dma_transferInfo transferInfo);
+
+void rpi_hal_dma_activateChannel(rpi_hal_uint8_t dmaChannel);
+
+rpi_hal_uint32_t rpi_hal_dma_transferComplete(rpi_hal_uint8_t dmaChannel);
+
+void rpi_hal_dma_deinit(rpi_hal_uint8_t dmaChannel);
 
 #endif

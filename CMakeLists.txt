@@ -16,6 +16,9 @@ file(GLOB_RECURSE FILESYSTEM_SOURCE "${CMAKE_SOURCE_DIR}/src/filesystem/*.c")
 
 set(C_SOURCES
   ${CMAKE_SOURCE_DIR}/src/kernel/kernel_main.c
+  ${CMAKE_SOURCE_DIR}/src/drivers/st7735s.c
+  ${CMAKE_SOURCE_DIR}/src/drivers/pcd8544.c
+  ${CMAKE_SOURCE_DIR}/src/drivers/hd44780.c
   ${HAL_RPI_SOURCE}
   ${COMMON_SOURCE}
   ${FILESYSTEM_SOURCE}

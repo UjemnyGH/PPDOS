@@ -111,6 +111,10 @@ typedef unsigned int rpi_hal_uint32_t;
 
 #define RPI_HAL_CLK_MANAGER_BASE (RPI_HAL_BASE + 0x101000)
 #define RPI_HAL_USB_BASE        (RPI_HAL_BASE + 0x980000)
+#define RPI_HAL_USB_CORE_BASE   RPI_HAL_USB_BASE
+#define RPI_HAL_USB_HOST_BASE   (RPI_HAL_USB_BASE + 0x400)
+#define RPI_HAL_USB_DEVICE_BASE (RPI_HAL_USB_BASE + 0x800)
+#define RPI_HAL_USB_POWER_BASE  (RPI_HAL_USB_BASE + 0xE00)
 
 #define RPI_HAL_MPHI_BASE       (RPI_HAL_BASE + 0x6000)
 #define RPI_HAL_MPHI_END        (RPI_HAL_MPHI_BASE + 0xFFF)
@@ -151,7 +155,7 @@ typedef unsigned int rpi_hal_uint32_t;
   #define RPI_HAL_HD_BASE       (RPI_HAL_BASE + 0x720000)
 #endif
 
-#define RPI_HAL_PHYSICAL_BASE (RPI_HAL_BASE + 0xF00F00)
+#define RPI_HAL_PHYSICAL_BASE   (RPI_HAL_BASE + 0xF00F00)
 
 #if RPI_HAL_LOAD_FOR <= 4
     #define RPI_HAL_RAM_BASE    (RPI_HAL_BASE + 0xF01B00)
@@ -164,5 +168,11 @@ typedef unsigned int rpi_hal_uint32_t;
 
 #define RPI_HAL_CSI1_BASE       (RPI_HAL_BASE + 0x801000)
 #define RPI_HAL_CSI1_END        (RPI_KAL_CSI1_BASE + 0x7FFF)
+
+#if RPI_HAL_LOAD_FOR <= 3
+  #define RPI_HAL_VC4_BASE      (RPI_HAL_BASE + 0xC00000)
+#else
+  #define RPI_HAL_VC4_BASE      (RPI_HAL_BASE + 0x4000)
+#endif
 
 #endif

@@ -33,3 +33,13 @@ void* memchr(void* ptr, int value, unsigned long num) {
 
   return (void*)0;
 }
+
+int strlen(const char *str) {
+  int len = 0;
+
+  while(str[len] != '\0') {
+    len++;
+  }
+
+  return len;
+}

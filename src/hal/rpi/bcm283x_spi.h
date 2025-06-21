@@ -88,11 +88,15 @@ enum rpi_hal_spi_master_dmaDataReqCtl {
 
 #define spi             (*(rpi_hal_spi_t*)RPI_HAL_SPI0_BASE)
 
-void rpi_hal_spi_init();
+void rpi_hal_spi_init(rpi_hal_uint32_t clockDiv);
+
+void rpi_hal_spi_chipSelect(rpi_hal_uint8_t cs);
 
 rpi_hal_uint8_t rpi_hal_spi_transferByte(const rpi_hal_uint8_t data);
 
 void rpi_hal_spi_transfer(const rpi_hal_uint8_t* pSrc, rpi_hal_uint8_t* pDst, const rpi_hal_uint32_t len);
+
+void rpi_hal_spi_dmaTransfer(rpi_hal_uint8_t dmaChannel, const rpi_hal_uint8_t* pSrc, rpi_hal_uint8_t* pDst, const rpi_hal_uint32_t len);
 
 void rpi_hal_spi_deinit();
 

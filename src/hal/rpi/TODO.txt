@@ -1,0 +1,15 @@
+ Aux UART1, SPI1, SPI2      -
+ BSC                        -
+ DMA                        - DONE
+ eMMC                       - DONE
+ GPIO                       - DONE
+ PCM/I2S Audio              -
+ PWM                        -
+ SPI                        - DONE
+ SPI/BSC SLAVE              -
+ Sys Timer                  - DONE
+ UART                       - WORKING/TO BE IMPROVED
+ Timer (ARM side)           -
+ USB                        -
+ VC4                        -
+ HDMI                       -

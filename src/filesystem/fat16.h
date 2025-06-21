@@ -1,7 +1,7 @@
 #ifndef _PPDOS_FAT16_STRUCTS_
 #define _PPDOS_FAT16_STRUCTS_
 
-#include "../shared_defs.h"
+#include "../common/shared_defs.h"
 
 #define FAT16_TIME_FORMAT(hours, minutes, seconds) ( ((hours & 0x1F) << 11) | ((minutes & 0x1F) << 5) | (seconds & 0x1F) )
 #define FAT16_DATE_FORMAT(day, month, year) ( (day & 0x1F) | ((month & 0xF) << 5) | ((year & 0x7F) << 9) ) 
