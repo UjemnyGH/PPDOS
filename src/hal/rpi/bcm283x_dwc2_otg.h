@@ -44,7 +44,7 @@ enum rpi_hal_dwc2_core_ahbCfg {
   dwc2Core_ahbCfg_enableInt         = 0x01,
   dwc2Core_ahbCfg_maxAxiBurstMask   = 0x06,
   dwc2Core_ahbCfg_waitAxiWrites     = 0x08,
-  dwc2Core_ahbCfg_enableDMA         = 0x10
+  dwc2Core_ahbCfg_enableDMA         = 0x20
 
   /* There can be more, tho this is currently only to setup HID, later I would add everything */
 };
@@ -57,13 +57,15 @@ enum rpi_hal_dwc2_core_usbCfg {
   dwc2Core_usbCfg_usbLowPinInterefaceFullSpeed    = 0x00020000,
   dwc2Core_usbCfg_usbLowPinInterfaceClockSuspend  = 0x00080000,
   dwc2Core_usbCfg_usbLowPinInterfaceVbusDriveExt  = 0x00100000,
-  dwc2Core_usbCfg_termSelectDataLinePulse         = 0x00400000
+  dwc2Core_usbCfg_termSelectDataLinePulse         = 0x00400000,
+  dwc2Core_usbCfg_forceHostMode                   = 0x20000000,
+  dwc2Core_usbCfg_forceDeviceMode                 = 0x40000000
 };
 
 enum rpi_hal_dwc2_core_resetCtl {
   dwc2Core_resetCtl_softReset = 0x00000001,
-  dwc2Core_resetCtl_txFlush   = 0x00000010,
-  dwc2Core_resetCtl_rxFlush   = 0x00000020,
+  dwc2Core_resetCtl_rxFlush   = 0x00000010,
+  dwc2Core_resetCtl_txFlush   = 0x00000020,
   dwc2Core_resetCtl_idle      = 0x80000000
 };
 
@@ -138,34 +140,43 @@ enum rpi_hal_dwc2_host_config {
 };
 
 enum rpi_hal_dwc2_host_portCtlStat {
-  dwc2Host_portCtlStat_connect            = 0x0001,
-  dwc2Host_portCtlStat_connectChanged     = 0x0002,
-  dwc2Host_portCtlStat_enable             = 0x0004,
+  dwc2Host_portCtlStat_connectStatus      = 0x0001,
+  dwc2Host_portCtlStat_connected          = 0x0002,
+  dwc2Host_portCtlStat_enabled            = 0x0004,
   dwc2Host_portCtlStat_enableChanged      = 0x0008,
-  dwc2Host_portCtlStat_overcurrent        = 0x0010,
-  dwc2Host_portCtlStat_overcurrentChanged = 0x0020,
+  dwc2Host_portCtlStat_overcurrentActive  = 0x0010,
+  dwc2Host_portCtlStat_overcurrentChange  = 0x0020,
+  dwc2Host_portCtlStat_portResume         = 0x0040,
+  dwc2Host_portCtlStat_portSuspend        = 0x0080,
   dwc2Host_portCtlStat_reset              = 0x0100,
-  dwc2Host_portCtlStat_power              = 0x1000
+  dwc2Host_portCtlStat_power              = 0x1000,
+  dwc2Host_portCtlStat_fullSpeedDevice    = 0x20000,
+  dwc2Host_portCtlStat_lowSpeedDevice     = 0x40000
 };
 
 enum rpi_hal_dwc2_host_channel_character {
-  dwc2Host_channel_character_maxPacketSizeMask    = 0x000007FF,
-  dwc2Host_channel_character_endpointNumberMask   = 0x00007800,
+  dwc2Host_channel_character_maxPacketSizeMask        = 0x000007FF,
+  dwc2Host_channel_character_endpointNumberMask       = 0x00007800,
   
-  dwc2Host_channel_character_endpointDirectionIn  = 0x00008000,
-  dwc2Host_channel_character_lowSpeedDevice       = 0x00020000,
+  dwc2Host_channel_character_endpointDirectionIn      = 0x00008000,
+  dwc2Host_channel_character_lowSpeedDevice           = 0x00020000,
   
-  dwc2Host_channel_character_endpointTypeMask     = 0x000C0000,
-  dwc2Host_channel_character_multicountMask       = 0x00300000,
-  dwc2Host_channel_character_deviceAddressMask    = 0x1FC00000,
-  dwc2Host_channel_character_oddFrame             = 0x20000000,
-  dwc2Host_channel_character_channelDisable       = 0x40000000,
-  dwc2Host_channel_character_channelEnable        = 0x80000000,
+  dwc2Host_channel_character_endpointTypeMask         = 0x000C0000,
+  dwc2Host_channel_character_endpointTypeControl      = 0x00000000,
+  dwc2Host_channel_character_endpointTypeIsochronous  = 0x00040000,
+  dwc2Host_channel_character_endpointTypeBulk         = 0x00080000,
+  dwc2Host_channel_character_endpointTypeInterrupt    = 0x000C0000,
 
-  dwc2Host_channel_character_endpointNumberShift  = 11,
-  dwc2Host_channel_character_endpointTypeShift    = 18,
-  dwc2Host_channel_character_multicountShift      = 20,
-  dwc2Host_channel_character_deviceAddressShift   = 22
+  dwc2Host_channel_character_multicountMask           = 0x00300000,
+  dwc2Host_channel_character_deviceAddressMask        = 0x1FC00000,
+  dwc2Host_channel_character_oddFrame                 = 0x20000000,
+  dwc2Host_channel_character_channelDisable           = 0x40000000,
+  dwc2Host_channel_character_channelEnable            = 0x80000000,
+
+  dwc2Host_channel_character_endpointNumberShift      = 11,
+  dwc2Host_channel_character_endpointTypeShift        = 18,
+  dwc2Host_channel_character_multicountShift          = 20,
+  dwc2Host_channel_character_deviceAddressShift       = 22
 };
 
 enum rpi_hal_dwc2_host_channel_interrupt {
@@ -238,22 +249,34 @@ typedef struct rpi_hal_dwc2_power_s {
 #define dwc2Device    (*(rpi_hal_dwc2_device_t*)RPI_HAL_USB_DEVICE_BASE)
 #define dwc2Power     (*(rpi_hal_dwc2_power_t*)(RPI_HAL_USB_BASE + 0xE00))
 
-#define dwc2FIFORam(channel_endpoint)   (*(rpi_hal_io32_t*)(RPI_HAL_USB_BASE + 0x1000 + (0x1000 * channel_endpoint)))
-
-void rpi_hal_dwc2_core_config(); 
-
-void rpi_hal_dwc2_core_disableIntMask();
-
-void rpi_hal_dwc2_core_setIntMask(const enum rpi_hal_dwc2_core_intStat mask);
+#define dwc2FIFORam(channel_endpoint)   ((rpi_hal_io32_t*)((unsigned long)(RPI_HAL_USB_BASE + 0x1000 + (0x1000 * channel_endpoint))))
 
 void rpi_hal_dwc2_core_flush(const rpi_hal_uint32_t channel, int tx, int rx);
 
-void rpi_hal_dwc2_core_reset();
+void rpi_hal_dwc2_device_write(const rpi_hal_uint32_t channel, const rpi_hal_uint8_t* data, const rpi_hal_uint32_t length);
 
-rpi_hal_uint32_t rpi_hal_dwc2_core_getHighSpeedPhysicalDeviceType();
+void rpi_hal_dwc2_device_read(const rpi_hal_uint32_t channel, rpi_hal_uint8_t* data, const rpi_hal_uint32_t length);
 
-rpi_hal_uint32_t rpi_hal_dwc2_core_getFullSpeedPhysicalDeviceType();
+int rpi_hal_dwc2_host_transfer(const rpi_hal_uint32_t channel, rpi_hal_uint8_t* data, rpi_hal_uint32_t length, const rpi_hal_uint8_t pid);
 
-void rpi_hal_dwc2_core_init(); 
+void rpi_hal_dwc2_host_allocChannel(const rpi_hal_uint32_t channel);
+
+void rpi_hal_dwc2_host_setChannelAddress(const rpi_hal_uint32_t channel, const rpi_hal_uint8_t address);
+
+void rpi_hal_dwc2_host_setChannelMaxPacketSize(const rpi_hal_uint32_t channel, rpi_hal_uint16_t maxPacketSize);
+
+void rpi_hal_dwc2_host_setChannelEndpointNumber(const rpi_hal_uint32_t channel, const rpi_hal_uint8_t epNum);
+
+int rpi_hal_dwc2_host_isNewDeviceConnected();
+
+int rpi_hal_dwc2_host_isDeviceDisconnected();
+
+int rpi_hal_dwc2_host_isPortEnabled();
+
+int rpi_hal_dwc2_host_isDevicePresent(); 
+
+void rpi_hal_dwc2_host_enableChannel(const rpi_hal_uint32_t channel);
+
+void rpi_hal_dwc2_host_disableChannel(const rpi_hal_uint32_t channel);
 
 #endif

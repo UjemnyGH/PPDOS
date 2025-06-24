@@ -40,6 +40,7 @@ uint32_t asmEncodeRET(void *argv, int argc) {
   ASM_ENCODING_BASE(argv);
 
   uint32_t retVal = opBinBase;
+
   retVal |= (ASM_REG(args[0]) << 5);
 
   return retVal;
@@ -52,7 +53,34 @@ uint32_t asmEncodeBRANCH(void* argv, int argc) {
   ASM_ENCODING_BASE(argv);
 
   uint32_t retVal = opBinBase;
-  retVal |= (args[0] << 5) & ASM_MASK(5, 23);
+
+  if((retVal & 0xFF000000) == 0x54000000) {
+    retVal |= (args[0] << 5) & ASM_MASK(5, 23);
+  }
+  else if(retVal == 0xD61F0000) {
+    retVal |= (args[0] << 5) & ASM_MASK(5, 9);
+  }
+  else {
+    retVal |= args[0] & ASM_MASK(0, 25); 
+  }
+
+  return retVal;
+}
+
+uint32_t asmEncodeCMP(void *argv, int argc) {
+  if(argc < 7)
+    return 0;
+
+  ASM_ENCODING_BASE(argv);
+  
+  uint32_t retVal = opBinBase;
+
+  if(retVal == 0xB4000000 || retVal == 0xB5000000) {
+    retVal |= (args[0] & ASM_MASK(0, 4)) | ((args[1] << 5) & ASM_MASK(5, 23));
+  }
+  else {
+    retVal |= (args[0] & ASM_MASK(0, 4)) | ((args[1] << 19) & ASM_MASK(19, 23)) | ((args[2] << 5) & ASM_MASK(5, 18));
+  }
 
   return retVal;
 }

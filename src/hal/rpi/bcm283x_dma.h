@@ -17,6 +17,16 @@ typedef struct rpi_hal_dma_s {
   rpi_hal_io32_t debug;
 } __attribute__((packed)) rpi_hal_dma_t;
 
+typedef struct {
+  rpi_hal_uint32_t transferInfo;    /* dma_transferStat_X flags */
+  rpi_hal_uint32_t srcAddr;
+  rpi_hal_uint32_t dstAddr;
+  rpi_hal_uint32_t transferLen;     /* dma_transferLen_x/yLengthMask (yLengthMask only for dma 0-6) */
+  rpi_hal_uint32_t stride2D;        /* dma_2DStride_src/dstStrideMask (only for dma 0-6) */
+  rpi_hal_uint32_t nextAddr;
+  rpi_hal_uint32_t RESERVED0[2];
+} __attribute__((packed)) rpi_hal_dma_control_block_t;
+
 typedef struct rpi_hal_dma_status_s {
   rpi_hal_io32_t intStatus;
   rpi_hal_io32_t enable;

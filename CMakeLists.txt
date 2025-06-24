@@ -19,6 +19,7 @@ set(C_SOURCES
   ${CMAKE_SOURCE_DIR}/src/drivers/st7735s.c
   ${CMAKE_SOURCE_DIR}/src/drivers/pcd8544.c
   ${CMAKE_SOURCE_DIR}/src/drivers/hd44780.c
+  ${CMAKE_SOURCE_DIR}/src/drivers/usb.c
   ${HAL_RPI_SOURCE}
   ${COMMON_SOURCE}
   ${FILESYSTEM_SOURCE}

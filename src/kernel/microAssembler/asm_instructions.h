@@ -67,29 +67,34 @@ uint32_t asmEncodeMOVx(void* argv, int argc);
 uint32_t asmEncodeRET(void* argv, int argc);
 
 /**
- * Function to encode all B.<cond> and BC.<cond> instruction
+ * Function to encode all B.<cond>, BC.<cond>, B, BL and BR instruction
  */
 uint32_t asmEncodeBRANCH(void* argv, int argc);
+
+/**
+ * Function to encode all compare instructions
+ */
+uint32_t asmEncodeCMP(void* argv, int argc);
 
 // TODO: Finish all instructions
 const asmInstruction_t ASM_INSTRUCTIONS_MINIMUM_KERNEL[] = {
   // 
   // Base arithmetic and logic
   //
-  {"ADD", 0x91000000, 3, {asmArg_reg, asmArg_reg, asmArg_imm}},
   {"ADD", 0x8B200000, 3, {asmArg_reg, asmArg_reg, asmArg_reg}},
-  {"SUB"},
-  {"CMP"},
-  {"MOV"},
-  {"MOVZ"},
-  {"MOVK"},
-  {"MOVN"},
+  {"SUB", 0xCB000000, 3, {asmArg_reg, asmArg_reg, asmArg_reg}},
+  {"CMP", },
+  {"MOV", 0xAA0003E0, 2, {asmArg_reg, asmArg_reg, asmArg_non}, asmEncodeMOVx},
+  {"MOV", 0xB20003E0, 2, {asmArg_reg, asmArg_imm, asmArg_non}, asmEncodeMOVx},
+  {"MOVZ", 0xD2800000, 2, {asmArg_reg, asmArg_imm, asmArg_non}, asmEncodeMOVx},
+  {"MOVK", 0xF2800000, 2, {asmArg_reg, asmArg_imm, asmArg_non}, asmEncodeMOVx},
+  {"MOVN", 0x92800000, 2, {asmArg_reg, asmArg_imm, asmArg_non}, asmEncodeMOVx},
   {"AND"},
   {"ORR"},
   // XOR
-  {"EOR"},
+  {"EOR", 0xD2000000, 3, {asmArg_reg, asmArg_reg, asmArg_imm}},
   // NOT
-  {"MVN"},
+  {"MVN", 0xAA4001E0},
   {"TST"},
   {"LSL"},
   {"LSR"},
@@ -101,9 +106,9 @@ const asmInstruction_t ASM_INSTRUCTIONS_MINIMUM_KERNEL[] = {
   //
   // Branching
   //
-  {"B", 0x14000000, 1, {asmArg_mem, asmArg_non, asmArg_non}},
-  {"BL", 0x94000000, 1, {asmArg_mem, asmArg_non, asmArg_non}},
-  {"BR", 0xD61F0000, 1, {asmArg_reg, asmArg_non, asmArg_non}},
+  {"B", 0x14000000, 1, {asmArg_mem, asmArg_non, asmArg_non}, asmEncodeBRANCH},
+  {"BL", 0x94000000, 1, {asmArg_mem, asmArg_non, asmArg_non}, asmEncodeBRANCH},
+  {"BR", 0xD61F0000, 1, {asmArg_reg, asmArg_non, asmArg_non}, asmEncodeBRANCH},
   {"RET", 0xD65F0000, 1, {asmArg_reg, asmArg_non, asmArg_non}, asmEncodeRET},
   // Branch conditionally
   // On equal
@@ -127,10 +132,10 @@ const asmInstruction_t ASM_INSTRUCTIONS_MINIMUM_KERNEL[] = {
   {"B.AL", 0x5400000E, 1, {asmArg_mem, asmArg_non, asmArg_non}, asmEncodeBRANCH},
   {"B.NV", 0x5400000F, 1, {asmArg_mem, asmArg_non, asmArg_non}, asmEncodeBRANCH},
 
-  {"CBZ", 0xB4000000, 2, {asmArg_reg, asmArg_mem, asmArg_non}},
-  {"CBNZ", 0xB5000000, 2, {asmArg_reg, asmArg_mem, asmArg_non}},
-  {"TBNZ", 0xB7000000, 3, {asmArg_reg, asmArg_imm, asmArg_mem}},
-  {"TBZ", 0xB6000000, 3, {asmArg_reg, asmArg_imm, asmArg_non}},
+  {"CBZ", 0xB4000000, 2, {asmArg_reg, asmArg_mem, asmArg_non}, asmEncodeCMP},
+  {"CBNZ", 0xB5000000, 2, {asmArg_reg, asmArg_mem, asmArg_non}, asmEncodeCMP},
+  {"TBNZ", 0xB7000000, 3, {asmArg_reg, asmArg_imm, asmArg_mem}, asmEncodeCMP},
+  {"TBZ", 0xB6000000, 3, {asmArg_reg, asmArg_imm, asmArg_non}, asmEncodeCMP},
 
   //
   // Memory and stack

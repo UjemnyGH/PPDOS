@@ -4,138 +4,113 @@
 #include "../drivers/st7735s.h"
 #include "../drivers/hd44780.h"
 #include "../drivers/pcd8544.h"
+#include "../drivers/usb.h"
+
+typedef struct {
+  uint8_t mod;
+  uint8_t reserved;
+  uint8_t keycodes[6];
+} __attribute__((packed)) usb_keyboard_report_t;
+
+char keycodeToAscii(uint8_t key, uint8_t mod) {
+  // Nothing pressed
+  if(key == 0x0)
+    return 0;
+
+  if(mod == 0x2 || mod == 0x20) {
+    if(key >= 0x4 && key <= 0x1D)
+      return 'A' + (key - 0x4);
+  }
+  else {
+    if(key >= 0x4 && key <= 0x1D)
+      return 'a' + (key - 0x4);
+
+    if(key >= 0x1E && key <= 0x26)
+      return '1' + (key - 0x1E);
+
+    if(key == 0x27)
+      return '0';
+  }
+
+  if(key == 0x28)
+    return '\n';
+
+  if(key == 0x2A)
+    return '\b';
+
+  if(key == 0x2B)
+    return '\t';
+
+  if(key == 0x2C)
+    return ' ';
+
+  return 0;
+}
+
+usb_base_t usb;
 
 void kernel_main() {
   //rpi_hal_sd_hci_initialize(); 
+  usb_init();
 
   st7735s_t st;
   st7735_init(&st, 20, 16, 21, ST7735_USE_SPI_DEFAULT_CS1);
 
-  int draw18Bit = 0;
+  st7735_clearFrame(&st);
+  st7735_drawBuffered(&st);
 
-  char* colorPreset[] = {
-    "F00",
-    "0F0",
-    "00F",
-    "0FF",
-    "F0F",
-    "FF0",
-    "FFF",
-  };
+  st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_18bit); 
 
-  char* dvdLogo = "\e[FFFDVD";
+  int screenTextIndex = 0;
+  char screenText[0x1000];
 
-  int x = 1, y = 1;
-  uint8_t posX = 1, posY = 1;
-  uint8_t colorIter = 0;
+  st7735_text18Bit(&st, "\x1b[00FWaiting for connection", 0, 120, 1);
+  usb_host_waitForDeviceConnection(-1);
+  delay_ms(100);
+
+  st7735_text18Bit(&st, "Device found", 0, 112, 1);
+
+  usb_host_reset();
+
+  st7735_text18Bit(&st, "Port reset", 0, 104, 1);
+
+  while(!usb_host_isDevicePresent())
+    delay_ms(1);
+
+  st7735_text18Bit(&st, "Device still present", 0, 96, 1);
+
+  while(!usb_host_isPortEnabled())
+    delay_ms(1);
+
+  st7735_text18Bit(&st, "Port enabled", 0, 88, 1);
+
+  usb_host_rebuildControlChannel0();
+
+  st7735_text18Bit(&st, "Channel0 rebuilt", 0, 80, 1); 
+
+  int keyboardChannel = usb_host_connect(&st, &usb, 0x1);
+
+  st7735_text18Bit(&st, "Connected", 0, 64, 1);
+  usb_keyboard_report_t kb;
 
   while(1) {
-    if(draw18Bit) {
-      st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_18bit);
+    st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_18bit);
 
-      for(uint8_t x = 0; x < ST7735_WIDTH; x++) {
-        for(uint8_t y = 0; y < ST7735_HEIGHT; y++) {
-          st7735_draw18BitPixel(&st, x, y, ST7735_COLOR_18(x % 0x40, 0, y % 0x40));
-        }
-      }
+    usb_host_receive(&usb.device[keyboardChannel], (uint8_t*)&kb, sizeof(usb_keyboard_report_t));     
+ 
+    st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_16bit); 
+
+    for(int i = 0; i < 6; i++) {
+      if(kb.keycodes[i] == 0)
+        break;
+
+      screenText[screenTextIndex++] = keycodeToAscii(kb.keycodes[i], kb.mod);
     }
-    else {
-      st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_16bit);
 
-      st7735_clearFrame(&st); // Ensures framebuffer is 0
+    st7735_text(&st, screenText, 0, 0, 1);
 
-      /*for(uint8_t x = 0; x < 0x1F; x++) {
-        for(uint8_t y = 0; y < 0x1F; y++) {   
-          st7735_setPixel(&st, x + 10, y + 10, ST7735_COLOR_16(x, 0x3F, y));
-        }
-      }*/
+    st7735_drawBuffered(&st);
 
-      posX += x;
-      posY += y;
-
-      if(posX == ST7735_WIDTH - 36) {
-        x = -1;
-
-        memcpy(dvdLogo + 2, colorPreset[colorIter], 3);
-
-        colorIter++;
-
-        if(colorIter >= (sizeof(colorPreset) / sizeof(colorPreset[0]))) colorIter = 0;
-      }
-
-      if(posY == ST7735_HEIGHT - 14) {
-        y = -1;
-     
-        memcpy(dvdLogo + 2, colorPreset[colorIter], 3);
-
-        colorIter++;
-
-        if(colorIter >= (sizeof(colorPreset) / sizeof(colorPreset[0]))) colorIter = 0;
-      }
-
-      if(posX == 0) {
-        x = 1;
-
-        memcpy(dvdLogo + 2, colorPreset[colorIter], 3);
-
-        colorIter++;
-
-        if(colorIter >= (sizeof(colorPreset) / sizeof(colorPreset[0]))) colorIter = 0;
-      }
-
-      if(posY == 0) {
-        y = 1;
-        
-        memcpy(dvdLogo + 2, colorPreset[colorIter], 3);
-
-        colorIter++;
-
-        if(colorIter >= (sizeof(colorPreset) / sizeof(colorPreset[0]))) colorIter = 0;
-      }
-
-      st7735_text(&st, dvdLogo, posX, posY, 2); 
-      
-      st7735_drawBuffered(&st);
-    }
+    st7735_clearFrame(&st);
   }
-
-  /*pcd8544_t pcd;
-  pcd_init(&pcd, 6, 5, 4, PCD8544_USE_SPI_CS1);
-
-  int t = 1;
-  int r = 1;
-
-  uint8_t pt = 0;
-  uint8_t pr = 0;
-
-  while(1) {
-    pcd_clear(&pcd);
-
-    pcd_text5x7(&pcd, "Hello, world!\nTest\tTab1232456", 2, 2);
-
-    for(uint8_t x = 0; x < 10; x++) {
-      for(uint8_t y = 0; y < 10; y++) {
-        pcd_setPixel(&pcd, x + pr, y + pt, 1);
-      }
-    }
-
-    pr += r;
-    pt += t;
-
-    if(pr == PCD8544_WIDTH - 10)
-      r = -1;
-
-    if(pr == 0)
-      r = 1;
-
-    if(pt == PCD8544_HEIGHT - 10)
-      t = -1;
-
-    if(pt == 0)
-      t = 1;
-
-    //delay_ms(5);
-
-    pcd_draw(&pcd);
-  }*/
 }

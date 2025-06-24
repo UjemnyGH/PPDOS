@@ -31,7 +31,22 @@ void rpi_hal_dma_activateChannel(rpi_hal_uint8_t dmaChannel) {
   if(dmaChannel > 14)
     dmaChannel = 14;
 
+  rpi_hal_dma_control_block_t cb = {
+    dma(dmaChannel).cbTransferInfo,
+    dma(dmaChannel).cbSrcAddr,
+    dma(dmaChannel).cbDstAddr,
+    dma(dmaChannel).cbTransferLen,
+    dma(dmaChannel).cb2DStride,
+    dma(dmaChannel).cbNextAddr
+  };
+
+  dma(dmaChannel).ctlBlockAddr = (rpi_hal_uint32_t)(unsigned long)&cb;
+
   dma(dmaChannel).controlStat |= dma_controlStat_activateDMA;
+
+  while(!rpi_hal_dma_transferComplete(dmaChannel));
+
+  dma(dmaChannel).ctlBlockAddr = 0;
 }
 
 rpi_hal_uint32_t rpi_hal_dma_transferComplete(rpi_hal_uint8_t dmaChannel) {
