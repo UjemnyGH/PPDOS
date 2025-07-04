@@ -43,3 +43,53 @@ int strlen(const char *str) {
 
   return len;
 }
+
+int strcmp(const char* a, const char* b) {
+  for(int i = 0; i < (strlen(a) > strlen(b) ? strlen(b) : strlen(a)); i++) {
+    if(a[i] != b[i])
+      return a[i] - b[i];
+  }
+
+  return 0;
+}
+
+int strncmp(const char* a, const char* b, const unsigned long size) {
+  const int stringSize = strlen(a) > strlen(b) ? strlen(b) : strlen(a);
+
+  for(int i = 0; i < (stringSize > size ? size : stringSize); i++) {
+    if(a[i] != b[i])
+      return a[i] - b[i];
+  }
+
+  return 0;
+}
+
+const char* strchr(const char* str, const int character) {
+  return memchr((void*)str, character, strlen(str));
+}
+
+const char* strstr(const char* a, const char* b) {
+  for(int i = 0; i < strlen(a); i++) {
+    if(strcmp(a + i, b) == 0)
+      return a +i;
+  }
+
+  return NULL;
+}
+
+char* strcat(char* dst, const char* src) {
+  return strcpy(dst + strlen(dst), src);  
+}
+
+char* strncat(char* dst, const char* src, const unsigned long size) {
+  return strncpy(dst + strlen(dst), src, size);
+}
+
+char* strcpy(char* dst, const char* src) {
+  return memcpy(dst, src, strlen(src));
+}
+
+char* strncpy(char* dst, const char* src, const unsigned long size) {
+  return memcpy(dst, src, (size > strlen(src) ? strlen(src) : size));
+}
+

@@ -16,10 +16,14 @@ file(GLOB_RECURSE FILESYSTEM_SOURCE "${CMAKE_SOURCE_DIR}/src/filesystem/*.c")
 
 set(C_SOURCES
   ${CMAKE_SOURCE_DIR}/src/kernel/kernel_main.c
+  ${CMAKE_SOURCE_DIR}/src/kernel/kernel_vector.c
+  ${CMAKE_SOURCE_DIR}/src/kernel/terminal.c
+
   ${CMAKE_SOURCE_DIR}/src/drivers/st7735s.c
   ${CMAKE_SOURCE_DIR}/src/drivers/pcd8544.c
   ${CMAKE_SOURCE_DIR}/src/drivers/hd44780.c
   ${CMAKE_SOURCE_DIR}/src/drivers/usb.c
+
   ${HAL_RPI_SOURCE}
   ${COMMON_SOURCE}
   ${FILESYSTEM_SOURCE}
@@ -27,6 +31,7 @@ set(C_SOURCES
 
 set(ASM_SOURCES
   ${CMAKE_SOURCE_DIR}/src/bootloader/loader.s
+  ${CMAKE_SOURCE_DIR}/src/bootloader/vectorTable.s
 )
 
 foreach(asm_file ${ASM_SOURCES})

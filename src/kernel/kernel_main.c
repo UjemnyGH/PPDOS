@@ -5,6 +5,7 @@
 #include "../drivers/hd44780.h"
 #include "../drivers/pcd8544.h"
 #include "../drivers/usb.h"
+#include "terminal.h"
 
 typedef struct {
   uint8_t mod;
@@ -48,58 +49,63 @@ char keycodeToAscii(uint8_t key, uint8_t mod) {
 }
 
 usb_base_t usb;
+st7735s_t st;
+
+void tty_stSetPixel(uint32_t x, uint32_t y) {
+  st7735_setPixel(&st, x, y, ST7735_COLOR_16(0x1F, 0x3F, 0x1F));
+}
+
+void tty_stDraw() {
+  st7735_drawBuffered(&st);
+  st7735_clearFrame(&st);
+}
 
 void kernel_main() {
   //rpi_hal_sd_hci_initialize(); 
-  usb_init();
-
-  st7735s_t st;
   st7735_init(&st, 20, 16, 21, ST7735_USE_SPI_DEFAULT_CS1);
 
   st7735_clearFrame(&st);
   st7735_drawBuffered(&st);
 
-  st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_18bit); 
+  term_globalInit(tty_stSetPixel, tty_stDraw, ST7735_WIDTH, ST7735_HEIGHT); 
+
+  puts("Initializing USB\n");
+
+  usb_init(); 
+
+  term_globalClear();
+  puts("USB: OK\n");
 
   int screenTextIndex = 0;
   char screenText[0x1000];
 
-  st7735_text18Bit(&st, "\x1b[00FWaiting for connection", 0, 120, 1);
+  puts("Waiting for connection\n");
   usb_host_waitForDeviceConnection(-1);
   delay_ms(100);
 
-  st7735_text18Bit(&st, "Device found", 0, 112, 1);
+  puts("Device found\n");
 
   usb_host_reset();
 
-  st7735_text18Bit(&st, "Port reset", 0, 104, 1);
+  puts("Port reset\n");
 
   while(!usb_host_isDevicePresent())
     delay_ms(1);
 
-  st7735_text18Bit(&st, "Device still present", 0, 96, 1);
-
-  while(!usb_host_isPortEnabled())
-    delay_ms(1);
-
-  st7735_text18Bit(&st, "Port enabled", 0, 88, 1);
+  puts("Device still present\n");
 
   usb_host_rebuildControlChannel0();
 
-  st7735_text18Bit(&st, "Channel0 rebuilt", 0, 80, 1); 
+  puts("Channel0/Endpoint0 rebuilt\n"); 
 
-  int keyboardChannel = usb_host_connect(&st, &usb, 0x1);
+  int keyboardChannel = usb_host_connect( &usb, 0x1);
 
-  st7735_text18Bit(&st, "Connected", 0, 64, 1);
+  puts("USB device connected\n");
   usb_keyboard_report_t kb;
 
   while(1) {
-    st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_18bit);
-
     usb_host_receive(&usb.device[keyboardChannel], (uint8_t*)&kb, sizeof(usb_keyboard_report_t));     
  
-    st7735_switchInterfacePixelFormat(&st, st_interPixelFormat_16bit); 
-
     for(int i = 0; i < 6; i++) {
       if(kb.keycodes[i] == 0)
         break;
@@ -107,10 +113,8 @@ void kernel_main() {
       screenText[screenTextIndex++] = keycodeToAscii(kb.keycodes[i], kb.mod);
     }
 
-    st7735_text(&st, screenText, 0, 0, 1);
+    puts(screenText);
 
-    st7735_drawBuffered(&st);
-
-    st7735_clearFrame(&st);
+    //asm volatile("wfi");
   }
 }

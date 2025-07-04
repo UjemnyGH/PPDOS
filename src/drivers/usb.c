@@ -1,14 +1,10 @@
 #include "usb.h"
-
-st7735s_t* gpst;
+#include "../kernel/terminal.h"
 
 int _usb_host_transfer(const int channel, uint8_t* data, uint32_t length, const uint8_t pid) {
   //int retVal = rpi_hal_dwc2_host_transfer(channel, data, length, pid);
 
   int retVal = 0;
-
-  if(length < 0)
-    st7735_text18Bit(gpst, "LEN < 0", 0, 0, 2);
 
   rpi_hal_dwc2_host_disableChannel(channel);
 
@@ -29,23 +25,56 @@ int _usb_host_transfer(const int channel, uint8_t* data, uint32_t length, const 
   }
 
   if(timeout <= 0)
-   st7735_text18Bit(gpst, "TOUT", 0, 70, 2); 
+    puts("TOUT\n"); 
 
   if(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_NAKReceived)
-   st7735_text18Bit(gpst, "NAK", 0, 14, 2); 
+    puts( "NAK\n"); 
 
   if(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_stall)
-   st7735_text18Bit(gpst, "STALL", 0, 28, 2); 
+    puts("STALL\n"); 
 
   if(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_ahbError)
-   st7735_text18Bit(gpst, "\x1b[F00AHBERR", 0, 42, 2); 
+    puts("AHBERR\n"); 
 
   if(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_ACKReceived)
-    st7735_text18Bit(gpst, "\x1b[0F0ACK", 0, 56, 2);    
+    puts("ACK\n");    
 
   rpi_hal_dwc2_host_disableChannel(channel);
 
   return !retVal;
+}
+
+#define USB_CACHE_LINE_SIZE 64
+
+static inline void _usb_flushDataCacheRange(uint64_t start, uint64_t end) {
+  start &= ~(USB_CACHE_LINE_SIZE - 1);
+
+  for(uint64_t addr = start; addr < end; addr += USB_CACHE_LINE_SIZE) {
+    // Data cache line clean by virt addr to point unification
+    asm volatile("dc cvau, %0" :: "r" (addr) : "memory");
+  }
+
+  // Ensure cache clean complete and visible 
+  asm volatile("dsb ish" ::: "memory");
+
+  // Sync context to this processor
+  asm volatile("isb" ::: "memory");
+}
+
+static inline void _usb_invalidateDataCacheRange(uint64_t start, uint64_t end) {
+  start &= ~(USB_CACHE_LINE_SIZE - 1);
+
+  for(uint64_t addr = start; addr < end; addr += USB_CACHE_LINE_SIZE) {
+    // Data cache line invalidate by virt addr to point coherency
+    asm volatile("dc ivac, %0" :: "r" (addr) : "memory");
+  }
+
+  // Ensure cache clean complete and visible 
+  asm volatile("dsb ish" ::: "memory");
+
+  // Sync context to this processor
+  asm volatile("isb" ::: "memory");
+
 }
 
 void usb_init() {
@@ -83,10 +112,10 @@ void usb_init() {
   dwc2Host.config &= ~dwc2Host_config_clockMask;
 
   // Select clock speed
-  if(dwc2Core.usbCfg & dwc2Core_usbCfg_16BitPhysicalInterface)
+  //if(!(dwc2Core.usbCfg & dwc2Core_usbCfg_16BitPhysicalInterface))
+  //  dwc2Host.config |= dwc2Host_config_clock30_60MHz;
+  //else 
     dwc2Host.config |= dwc2Host_config_clock48MHz;
-  else 
-    dwc2Host.config |= dwc2Host_config_clock30_60MHz;
 
   // Select appropriate intterupt masks for host mode
   dwc2Core.intMask |= 
@@ -101,11 +130,6 @@ void usb_init() {
   dwc2Core.ahbCfg |= dwc2Core_ahbCfg_enableInt | dwc2Core_ahbCfg_enableDMA;
 
   // Host initialization
-  dwc2Host.portCtlStat |= (dwc2Host_portCtlStat_connected | dwc2Host_portCtlStat_enableChanged | dwc2Host_portCtlStat_overcurrentChange);
-
-  dwc2Host.portCtlStat |= dwc2Host_portCtlStat_power;
-  delay_ms(200);
-
   usb_host_reset();
 
   // Make control channel 0 as endpoint0
@@ -117,25 +141,42 @@ void usb_init() {
  */
 
 void usb_host_reset() {
-  dwc2Host.portCtlStat |= (dwc2Host_portCtlStat_connected | dwc2Host_portCtlStat_enableChanged | dwc2Host_portCtlStat_overcurrentChange);
+  uint32_t hprt = dwc2Host.portCtlStat;
 
-  dwc2Host.portCtlStat |= dwc2Host_portCtlStat_power;
+  hprt &= ~dwc2Host_portCtlStat_reset;
+  hprt |= dwc2Host_portCtlStat_power;
+  hprt |= (dwc2Host_portCtlStat_connected | dwc2Host_portCtlStat_enableChanged | dwc2Host_portCtlStat_overcurrentChange);
 
-  delay_ms(50);
+  dwc2Host.portCtlStat = hprt;
 
-  int timeout = 10000;
-  while(!(dwc2Host.portCtlStat & dwc2Host_portCtlStat_power) && timeout--)
+  puts("USB: Waiting for power on\n");
+  hprt &= ~(dwc2Host_portCtlStat_connected | dwc2Host_portCtlStat_enableChanged | dwc2Host_portCtlStat_overcurrentChange);
+
+  delay_ms(100);
+
+  while(!(dwc2Host.portCtlStat & dwc2Host_portCtlStat_power))
     delay_ms(1);
 
-  delay_ms(10);
+  delay_ms(1);
 
-  dwc2Host.portCtlStat |= dwc2Host_portCtlStat_reset;
+  hprt |= dwc2Host_portCtlStat_reset;
+  dwc2Host.portCtlStat = hprt;
 
-  delay_ms(50);
+  delay_ms(60);
 
-  dwc2Host.portCtlStat &= ~dwc2Host_portCtlStat_reset;
-  
-  delay_ms(20); 
+  hprt &= ~dwc2Host_portCtlStat_reset;
+  dwc2Host.portCtlStat = hprt;
+
+  if(dwc2Host.portCtlStat & dwc2Host_portCtlStat_power)
+    puts("USB: Power enabled\n");
+  else
+    puts("USB: NO POWER\n");
+
+  puts("USB: Waiting for port enable\n");
+  while(!usb_host_isPortEnabled())
+    delay_ms(10);
+
+  puts("USB: Port is enabled, reset succesful\n");
 }
 
 int usb_host_waitForDeviceConnection(int timeout) {
@@ -225,15 +266,11 @@ void usb_host_freeChannel(usb_base_t* const pUsbBase, const int channel) {
   }
 }
 
-int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uint8_t address) {
-  gpst = pSt;
-
-  st7735_text18Bit(pSt, "\x1b[0F0Start", 0, 0, 1);
+int usb_host_connect(usb_base_t* const pUsbBase, const uint8_t address) {
+  puts("USB: Acquireing connection started\n");
 
   if(!pUsbBase || address > 128 || address < 1)
     return -2;
-
-  st7735_text18Bit(pSt, "Addr and base exist", 0, 8, 1);
 
   static usb_device_t result = {};
   result.address = address;
@@ -250,10 +287,10 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
   static usb_device_descriptor_t descriptor = {};
 
-  if(usb_host_controlTransfer(getDescriptor, (uint8_t*)0, (uint8_t*)&descriptor) != 1)
+  if(usb_host_controlTransfer(&getDescriptor, (uint8_t*)0, (uint8_t*)&descriptor) != 1)
     return -1;
 
-  st7735_text18Bit(pSt, "Got descriptor", 0, 16, 1);
+  puts("USB: Got descriptor\n");
 
   result.maxPacketSize = descriptor.maxPacketSize;
 
@@ -267,10 +304,10 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
   static usb_config_descriptor_t config = {};
 
-  if(usb_host_controlTransfer(getConfig, (uint8_t*)0, (uint8_t*)&config) != 1)
+  if(usb_host_controlTransfer(&getConfig, (uint8_t*)0, (uint8_t*)&config) != 1)
     return -1;
 
-  st7735_text18Bit(pSt, "Got config", 0, 24, 1);
+  puts("USB: Got config\n");
 
   static usb_control_packet_t getFullConfig = {
     usb_requestType_in,
@@ -281,10 +318,10 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
   getFullConfig.length = config.totalLength;
   
-  if(usb_host_controlTransfer(getFullConfig, (uint8_t*)0, result.descriptorData) != 1)
+  if(usb_host_controlTransfer(&getFullConfig, (uint8_t*)0, result.descriptorData) != 1)
     return -1;
 
-  st7735_text18Bit(pSt, "Got full config", 0, 32, 1);
+  puts("USB: Got full config\n");
 
   uint32_t offset = 0;
 
@@ -330,10 +367,10 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
   setAddress.value = result.address & 0x7F;
 
-  if(usb_host_controlTransfer(setAddress, (uint8_t*)0, (uint8_t*)0) != 1)
+  if(usb_host_controlTransfer(&setAddress, (uint8_t*)0, (uint8_t*)0) != 1)
     return -1;
 
-  st7735_text18Bit(pSt, "Set address", 0, 40, 1);
+  puts("USB: Set address\n");
 
   int channel = 0;
 
@@ -349,7 +386,7 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
     pUsbBase->device[result.channelTx] = result;
 
-    st7735_text18Bit(pSt, "Allocated TX", 0, 48, 1);
+    puts("USB: Allocated TX\n");
   }
 
   if(result.endpointIn != 0xFF) {
@@ -364,7 +401,7 @@ int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uin
 
     pUsbBase->device[result.channelRx] = result;
 
-    st7735_text18Bit(pSt, "Allocated RX", 0, 56, 1);
+    puts("USB: Allocated RX\n");
   }
 
   return channel;
@@ -393,35 +430,36 @@ void usb_host_disconnect(usb_base_t* const pUsbBase, usb_device_t* const pDevice
   }
 }
 
-int usb_host_controlTransfer(usb_control_packet_t control, const uint8_t* tx, uint8_t* rx) {
-  usb_control_packet_t tmpCtl = control;
-
+int usb_host_controlTransfer(usb_control_packet_t* const pControl, const uint8_t* tx, uint8_t* rx) {
   dwc2Host.channel[0].character &= ~dwc2Host_channel_character_endpointDirectionIn;
 
-  st7735_text18Bit(gpst, "Bef att", 80, 16, 1);
+  puts("USB: Before control packet\n");
 
   dwc2Host.channel[0].character &= ~dwc2Host_channel_character_endpointTypeMask;
   dwc2Host.channel[0].character |= dwc2Host_channel_character_endpointTypeControl;
 
-  if(!_usb_host_transfer(0, (uint8_t*)&tmpCtl, sizeof(usb_control_packet_t), 3))
+  _usb_flushDataCacheRange((uint64_t)pControl, (uint64_t)pControl + sizeof(usb_control_packet_t)); 
+  if(!_usb_host_transfer(0, (uint8_t*)pControl, sizeof(usb_control_packet_t), 3))
     return -1;
 
-  st7735_text18Bit(gpst, "Aft att", 80, 24, 1);
+  puts("USB: After control packet\n");
 
-  if(tx && control.length > 0 && (control.requestType & usb_requestType_in) == 0) {
+  if(tx && pControl->length > 0 && (pControl->requestType & usb_requestType_in) == 0) {
     dwc2Host.channel[0].character &= ~dwc2Host_channel_character_endpointDirectionIn;
 
-    if(!_usb_host_transfer(0, (uint8_t*)tx, control.length, 0))
+    _usb_flushDataCacheRange((uint64_t)tx, (uint64_t)tx + pControl->length);
+    if(!_usb_host_transfer(0, (uint8_t*)tx, pControl->length, 0))
       return -2;
   }
   else if(rx) {
     dwc2Host.channel[0].character |= dwc2Host_channel_character_endpointDirectionIn;
 
-    if(!_usb_host_transfer(0, rx, control.length, 1))
+    _usb_invalidateDataCacheRange((uint64_t)rx, (uint64_t)rx + pControl->length);
+    if(!_usb_host_transfer(0, rx, pControl->length, 1))
       return -3;
   }
 
-  if((control.requestType & usb_requestType_in) == 0) {
+  if((pControl->requestType & usb_requestType_in) == 0) {
     dwc2Host.channel[0].character |= dwc2Host_channel_character_endpointDirectionIn;
 
     if(!_usb_host_transfer(0, (uint8_t*)0, 0, 2))
@@ -441,6 +479,7 @@ int usb_host_receive(usb_device_t* const pDevice, uint8_t* data, const uint32_t 
   if(!pDevice)
     return -1;
 
+  _usb_invalidateDataCacheRange((uint64_t)data, (uint64_t)data + length);
   // 1 as PID = DATA1 - IN
   if(pDevice->channelRx >= 0)
     return _usb_host_transfer(pDevice->channelRx, data, length, 1);
@@ -452,6 +491,7 @@ int usb_host_send(usb_device_t* const pDevice, const uint8_t* data, const uint32
   if(!pDevice)
     return -1;
 
+  _usb_flushDataCacheRange((uint64_t)data, (uint64_t)data + length);
   // 0 as PID = DATA0 - OUT
   if(pDevice->channelTx >= 0)
     return _usb_host_transfer(pDevice->channelTx, (uint8_t*)data, length, 0);

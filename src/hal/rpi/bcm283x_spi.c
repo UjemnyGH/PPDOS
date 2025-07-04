@@ -27,11 +27,15 @@ void rpi_hal_spi_chipSelect(rpi_hal_uint8_t cs) {
 }
 
 rpi_hal_uint8_t rpi_hal_spi_transferByte(const rpi_hal_uint8_t data) {
-  while((spi.controlStat & spi_controlStat_tdxTxFIFOData) == 0);
+  while((spi.controlStat & spi_controlStat_tdxTxFIFOData) == 0) {
+    asm volatile("nop");
+  }
 
   spi.fifoData = data;
 
-  while((spi.controlStat & spi_controlStat_rdxRxFIFOData) == 0);
+  while((spi.controlStat & spi_controlStat_rdxRxFIFOData) == 0) {
+    asm volatile("nop");
+  }
 
   return (rpi_hal_uint8_t)(spi.fifoData & 0xFF);
 }
@@ -87,7 +91,7 @@ void rpi_hal_spi_dmaTransfer(rpi_hal_uint8_t dmaChannel, const rpi_hal_uint8_t* 
   rpi_hal_uint32_t timeout = 1000000;
   /* Wait for DMA channels to cxomplete transfer */
   while((pSrc ? !rpi_hal_dma_transferComplete(dmaChannel) : 0 || pDst ? !rpi_hal_dma_transferComplete(dmaChannel + 1) : 0) && timeout--)
-    asm volatile ("nop");
+    asm volatile("nop");
 
   if(pSrc)
     rpi_hal_dma_deinit(dmaChannel);

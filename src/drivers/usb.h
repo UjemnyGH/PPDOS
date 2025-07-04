@@ -4,8 +4,6 @@
 #include "../common/shared_fn.h"
 #include "../hal/rpi/bcm283x_dwc2_otg.h"
 
-#include "st7735s.h"
-
 #define USB_DIR_IN            1
 #define USB_DIR_OUT           2
 #define USB_TYPE_CONTROL      dwc2Host_channel_character_endpointTypeControl
@@ -157,13 +155,13 @@ int usb_host_allocateChannel(usb_base_t* const pUsbBase);
 
 void usb_host_freeChannel(usb_base_t* const pUsbBase, const int channel);
 
-int usb_host_connect(st7735s_t* const pSt, usb_base_t* const pUsbBase, const uint8_t address);
+int usb_host_connect(usb_base_t* const pUsbBase, const uint8_t address);
 
 void usb_host_disconnect(usb_base_t* const pUsbBase, usb_device_t* const pDevice);
 
 int usb_host_pollDevices(const uint8_t address, const uint16_t maxPacketSize);
 
-int usb_host_controlTransfer(usb_control_packet_t control, const uint8_t* tx, uint8_t* rx);
+int usb_host_controlTransfer(usb_control_packet_t* const pControl, const uint8_t* tx, uint8_t* rx);
 
 int usb_host_receive(usb_device_t* const pDevice, uint8_t* data, const uint32_t length);
 

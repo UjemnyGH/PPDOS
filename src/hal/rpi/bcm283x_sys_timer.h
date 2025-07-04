@@ -21,4 +21,6 @@ enum rpi_hal_sys_timer_controlStat {
 
 unsigned long long rpi_hal_sys_timer_read();
 
+void rpi_hal_sys_timer_interruptIn(const rpi_hal_uint32_t us);
+
 #endif

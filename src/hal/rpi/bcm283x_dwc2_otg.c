@@ -6,13 +6,17 @@ void rpi_hal_dwc2_core_flush(const rpi_hal_uint32_t channel, int tx, int rx) {
   if(tx) {
     dwc2Core.resetCtl = dwc2Core_resetCtl_txFlush | (channel << 6);
 
-    while(dwc2Core.resetCtl & dwc2Core_resetCtl_txFlush);
+    while(dwc2Core.resetCtl & dwc2Core_resetCtl_txFlush) {
+      asm volatile("nop");
+    }
   }
 
   if(rx) {
     dwc2Core.resetCtl = dwc2Core_resetCtl_rxFlush;
 
-    while(dwc2Core.resetCtl & dwc2Core_resetCtl_rxFlush);
+    while(dwc2Core.resetCtl & dwc2Core_resetCtl_rxFlush) {
+      asm volatile("nop");
+    }
   }
 }
 
@@ -62,7 +66,9 @@ int rpi_hal_dwc2_host_transfer(const rpi_hal_uint32_t channel, rpi_hal_uint8_t* 
     return -4;
 
   int timeout = 1000000;
-  while(!(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_transferComplete) && timeout--);
+  while(!(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_transferComplete) && timeout--) {
+    asm volatile("nop");
+  }
 
   if(dwc2Host.channel[channel].interrupt & dwc2Host_channel_interrupt_NAKReceived)
     return -2;
@@ -139,9 +145,9 @@ int rpi_hal_dwc2_host_isDevicePresent() {
 }
 
 void rpi_hal_dwc2_host_enableChannel(const rpi_hal_uint32_t channel) {
+  dwc2Core.ahbCfg |= dwc2Core_ahbCfg_enableDMA | dwc2Core_ahbCfg_enableInt;
+
   dwc2Host.channel[channel].interrupt = 0xFFFFFFFF;
-  dwc2Host.channel[channel].dmaAddr = 0;
-  dwc2Host.channel[channel].transferSize = 0;
 
   dwc2Host.channel[channel].character &= ~dwc2Host_channel_character_channelDisable;
   dwc2Host.channel[channel].character |= dwc2Host_channel_character_channelEnable;
@@ -152,6 +158,11 @@ void rpi_hal_dwc2_host_disableChannel(const rpi_hal_uint32_t channel) {
 
   dwc2Host.channel[channel].character |= dwc2Host_channel_character_channelDisable;
   int timeout = 1000000;
-  while(dwc2Host.channel[channel].character & dwc2Host_channel_character_channelEnable && timeout);
+  while((dwc2Host.channel[channel].character & dwc2Host_channel_character_channelEnable) && timeout--) {
+    asm volatile("nop");
+  }
+
+  dwc2Host.channel[channel].dmaAddr = 0;
+  dwc2Host.channel[channel].transferSize = 0;
 }
 

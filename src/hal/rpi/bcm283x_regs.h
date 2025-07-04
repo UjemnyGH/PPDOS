@@ -35,6 +35,9 @@ RPI_HAL_CSI0_BASE
 RPI_HAL_CSI0_END
 RPI_HAL_CSI1_BASE
 RPI_HAL_CSI1_END
+RPI_HAL_VC4_BASE
+RPI_HAL_GIC_DIST_BASE
+RPI_HAL_GIC_INT_BASE
 
 */
 
@@ -174,5 +177,8 @@ typedef unsigned int rpi_hal_uint32_t;
 #else
   #define RPI_HAL_VC4_BASE      (RPI_HAL_BASE + 0x4000)
 #endif
+
+#define RPI_HAL_GIC_DIST_BASE   (RPI_HAL_BASE + 0x1000)
+#define RPI_HAL_GIC_INT_BASE    (RPI_HAL_BASE + 0x2000)
 
 #endif
