@@ -1,8 +1,11 @@
 # Home page for PPDOS documentation
 
-[**Bootloader**](src/bootloader/bootloader_docs.md)
-[**Common**](src/common/common_docs.md)
-[**Drivers**](src/drivers/drivers_docs.md)
-[**Filesystem**](src/filesystem/filesystem_docs.md)
-[**HAL**](src/hal/hal_docs.md)
-[**Kernel**](src/kernel/kernel_docs.md)
+[**Bootloader**](bootloader/bootloader_docs.md)
+[**Common**](common/common_docs.md)
+[**Drivers**](drivers/drivers_docs.md)
+[**Filesystem**](filesystem/filesystem_docs.md)
+[**HAL**](hal/hal_docs.md)
+[**Kernel**](kernel/kernel_docs.md)
+
+> [!WARNING]
+> Kernel, Filesystem, Common and Bootloader currently does not have documentation at all

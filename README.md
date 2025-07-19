@@ -6,11 +6,11 @@
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform: Raspberry Pi](https://img.shields.io/badge/Platform-Raspberry%20Pi-informational)](https://www.raspberrypi.com/)
-[![Language: C](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
-[![Build: Manual](https://img.shields.io/badge/Build-System-Manual-lightgrey)]()
-[![Stage: Early Alpha](https://img.shields.io/badge/Stage-Early_Alpha-yellow)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![Platform: Raspberry Pi](https://img.shields.io/badge/Platform-Raspberry%20Pi-red?style=for-the-badge)](https://www.raspberrypi.com/)
+[![Language: C](https://img.shields.io/badge/Language-C-blue.svg?style=for-the-badge)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![Build: Manual](https://img.shields.io/badge/Build-Manual-lightgrey?style=for-the-badge)]()
+[![Stage: Early Alpha](https://img.shields.io/badge/Stage-Early_Alpha-yellow?style=for-the-badge)]()
 
 </div>
 
