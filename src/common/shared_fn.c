@@ -50,11 +50,12 @@ void delay_us(uint64_t us) {
   uint64_t ticksToWait = (frequency * us) / 1000000ULL;
   uint64_t target = now + ticksToWait;
 
+  disableCounter_EL0();
   writeCounterCompareValue_EL0(target);
   enableCounter_EL0();
 
   // Enable IRQ
-  asm volatile("msr daifclr, #2");
+  asm volatile("msr daifclr, #2\n\tisb");
 
   while(!gDelayDone) {
     asm volatile("wfi");

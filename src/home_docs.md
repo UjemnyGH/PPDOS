@@ -7,5 +7,5 @@
 [**HAL**](hal/hal_docs.md)
 [**Kernel**](kernel/kernel_docs.md)
 
-> [!WARNING]
+> [!IMPORTANT]
 > Kernel, Filesystem, Common and Bootloader currently does not have documentation at all

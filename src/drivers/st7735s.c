@@ -4,8 +4,10 @@
 #include "../common/shared_fn.h"
 #include "../common/pp_memory.h"
 
+#define ST_SPI_CLOCK_DIV 4
+
 void _st7735_select(st7735s_t* const pSt) {
-  rpi_hal_spi_init(4);
+  rpi_hal_spi_init(ST_SPI_CLOCK_DIV);
 
   if(pSt->chipSelectPin == ST7735_USE_SPI_DEFAULT_CS1)
     rpi_hal_spi_chipSelect(1);
@@ -247,13 +249,16 @@ void st7735_text(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, u
     char ch = text[i];
 
     if(ch == '\n') {
+      // Text height +1 * size
       nextCharacterY += 8 * size;
       nextCharacterX = 0;
     }
 
     if(ch == '\t')
+      // (Text width * 2 + 2) * size
       nextCharacterX += 12 * size;
 
+    // Go to the next line if character does not fit
     if(x + (nextCharacterX + 6) * size > ST7735_WIDTH) {
       nextCharacterY += 8;
       nextCharacterX = 0;
@@ -286,7 +291,7 @@ void st7735_text(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, u
       if(r > 0xF)
         b = text[i + 4] - 'a' + 10;
 
-      color = ST7735_COLOR_16((uint8_t)(((float)r / (float)0xF) * 0x1F), (uint8_t)(((float)g / (float)0xF) * 0x3F), (uint8_t)(((float)b / (float)0xF) * 0x1F));
+      color = ST7735_COLOR_16((uint8_t)(((float)r / (float)0xF) * 0xFF), (uint8_t)(((float)g / (float)0xF) * 0xFF), (uint8_t)(((float)b / (float)0xF) * 0xFF));
 
       i += 4;
 
@@ -296,9 +301,11 @@ void st7735_text(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, u
     if(ch < 32)
       continue;
 
+    // Characher size loops
     for(uint8_t _x = 0; _x < 5; _x++) {
       for(uint8_t _y = 0; _y < 7; _y++) {
 
+        // Resize loops (could be more readable)
         for(uint8_t xi = 0; xi < size; xi++) {
           for(uint8_t yi = 0; yi < size; yi++) {
             if(ST7735_FONT5X7[ch - 32][_x] & (1 << _y))
@@ -317,7 +324,7 @@ void st7735_text18Bit(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t
   uint32_t nextCharacterX = 0;
   uint32_t nextCharacterY = 0;
 
-  uint32_t color = ST7735_COLOR_18(0x3F, 0x3F, 0x3F);
+  uint32_t color = ST7735_COLOR_18(0xFF, 0xFF, 0xFF);
 
   for(uint32_t i = 0; i < strlen(text); i++) {
     char ch = text[i];
@@ -362,7 +369,7 @@ void st7735_text18Bit(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t
       if(r > 0xF)
         b = text[i + 4] - 'a' + 10;
 
-      color = ST7735_COLOR_18((uint8_t)(((float)r / (float)0xF) * 0x3F), (uint8_t)(((float)g / (float)0xF) * 0x3F), (uint8_t)(((float)b / (float)0xF) * 0x3F));
+      color = ST7735_COLOR_18((uint8_t)(((float)r / (float)0xF) * 0xFF), (uint8_t)(((float)g / (float)0xF) * 0xFF), (uint8_t)(((float)b / (float)0xF) * 0xFF));
 
       i += 4;
 

@@ -1,4 +1,5 @@
-#include "../hal/rpi/bcm283x.h"
+#include "kernel_vector.h"
+
 #include "../common/pp_memory.h"
 #include "../common/shared_fn.h"
 #include "../drivers/st7735s.h"
@@ -52,7 +53,7 @@ usb_base_t usb;
 st7735s_t st;
 
 void tty_stSetPixel(uint32_t x, uint32_t y) {
-  st7735_setPixel(&st, x, y, ST7735_COLOR_16(0x1F, 0x3F, 0x1F));
+  st7735_setPixel(&st, x, y, ST7735_COLOR_16(0xFF, 0xFF, 0xFF));
 }
 
 void tty_stDraw() {
@@ -61,6 +62,8 @@ void tty_stDraw() {
 }
 
 void kernel_main() {
+  kernel_initializeVectorTable();
+
   //rpi_hal_sd_hci_initialize(); 
   st7735_init(&st, 20, 16, 21, ST7735_USE_SPI_DEFAULT_CS1);
 

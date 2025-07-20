@@ -1,15 +1,15 @@
 # Bootloader documentation
 
-[**Home**](src/home_docs.md)
+[**Home**](../../home_docs.md)
 
-[**Common**](src/common/common_docs.md)
-[**Drivers**](src/drivers/drivers_docs.md)
-[**Filesystem**](src/filesystem/filesystem_docs.md)
-[**HAL**](src/hal/hal_docs.md)
-[**Kernel**](src/kernel/kernel_docs.md)
+[**Common**](../common/common_docs.md)
+[**Drivers**](../drivers/drivers_docs.md)
+[**Filesystem**](../filesystem/filesystem_docs.md)
+[**HAL**](../hal/hal_docs.md)
+[**Kernel**](../kernel/kernel_docs.md)
 
-Bootloader is really small, just enought to run kernel_main() in [kernel_main.c](src/kernel/kernel_main.c)
+Bootloader is really small, just enought to run kernel_main() in [kernel_main.c](../../kernel/kernel_main.c)
 
-Bootloader consist currently 2 files:
-- [loader.s](src/bootloader/loader.s) - loads and runs void kernel_main()
-- [vectorTable.s](src/bootloader/vectorTable.s) - loads interrupts for vector table
+Bootloader currently consist 2 files:
+- [loader.s](../bootloader/loader.s) - loads and runs void kernel_main()
+- [vectorTable.s](../bootloader/vectorTable.s) - loads interrupts for vector table

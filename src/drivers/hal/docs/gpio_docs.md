@@ -1,16 +1,19 @@
 ### src/drivers/hal/gpio.c / .h - General Purpose IO multiplatform wrapper
 
+[**Back**](../../drivers_docs.md)
+
 ##### Macros:
 ```C
 GPIO_MAKE_FUNCTION(function, pin) 
 ```
 ###### Description
-Macro used for setting desired pin function inside `gpio_setFunction()`<br><br>
-This macro does not need third <*shift*> parameter, but works in the same way as lower (eg. ***RPI_HAL_GPIO_ALT_FUNCTION_MAKER***) Hardware Abstraction Layer (HAL) libraries.
+Macro used for setting desired pin function inside `gpio_setFunction()`
+> [!NOTE]
+> This macro does not need third <*shift*> parameter, but works in the same way as lower (eg. ***RPI_HAL_GPIO_ALT_FUNCTION_MAKER***) Hardware Abstraction Layer (HAL) libraries.
 
 ###### Parameters
-- <*function*> - desired pin function (eg. gpio_functionSelect_input)
-- <*pin*> - pin number (eg. 1)
+- **function** - desired pin function (eg. gpio_functionSelect_input)
+- **pin** - pin number (eg. 1)
 
 ###### Example usage
 ```C
@@ -34,10 +37,11 @@ void gpio_setFunction(const uint32_t function);
 ``` 
 ###### Description
 General Purpose Input/Output (GPIO) function for setting desired pin function. Should be used with ***GPIO_MAKE_FUNCTION*** or any lower level function maker macro like ***RPI_HAL_GPIO_ALT_FUNCTION_MAKER***.
-Also can take predefined values from ***rpi_hal_gpio_functionSelect_allAltFunctions*** enum.
+> [!TIP]
+> Can take predefined values from ***rpi_hal_gpio_functionSelect_allAltFunctions*** enum.
 
 ###### Parameters
-- <*function*> - desired pin function along with encoded pin and shift (eg. GPIO_MAKE_FUNCTION(gpio_functionSelect_output, 2) )
+- **function** - desired pin function along with encoded pin and shift (eg. GPIO_MAKE_FUNCTION(gpio_functionSelect_output, 2) )
 
 ###### Example usage
 ```C
@@ -71,8 +75,8 @@ Sets output on desired pin to low or high state, on **<*state*> == 0** pin is lo
 For manipulating desired pin state, you need to call `gpio_setFunction(GPIO_MAKE_FUNCTION(gpio_functionSelect_output, <pin>));` before to prepare pin as output.
 
 ###### Parameters
-- <*pin*> - desired pin to manipulate state of
-- <*state*> - state of pin, **0 = low**, **!0 = high**
+- **pin** - desired pin to manipulate state of
+- **state** - state of pin, **0 = low**, **!0 = high**
 
 ###### Example usage
 ```C
@@ -108,7 +112,7 @@ uint32_t gpio_getInput(const uint8_t pin);
 Gets desired pin state. For getting desired pin state, you need to call `gpio_setFunction(GPIO_MAKE_FUNCTION(gpio_functionSelect_input, <pin>));` before to prepare pin as input.
 
 ###### Parameters
-- <*pin*> - desired pin that should return it's state
+- **pin** - desired pin that should return it's state
 
 ###### Return value
 - 0 - pin state is low

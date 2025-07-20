@@ -1,19 +1,73 @@
-#ifndef _PPDOS_DRIVER_ST7735S_
-#define _PPDOS_DRIVER_ST7735S_
+### src/drivers/st7735s.c / .h - ST7735 TFT LCD screen driver
 
-#include "../common/shared_defs.h"
+[**Back**](../drivers_docs.md)
 
-#define ST7735_USE_SPI_DEFAULT_CS1  0xFF
-#define ST7735_WIDTH 160
-#define ST7735_HEIGHT 128
+##### Defines:
+<a name="ST7735_USE_SPI_DEFAULT_CS1"></a>
+```C
+ST7735_USE_SPI_DEFAULT_CS1
+```
 
-#define ST7735_COLOR_18(r, g, b) ((((uint32_t)(((float)b / (float)0xFF) * 0x3F) & 0x3F) << 2) | (((uint32_t)(((float)g / (float)0xFF) * 0x3F) & 0x3F) << 10) | (((uint32_t)(((float)r / (float)0xFF) * 0x3F) & 0x3F) << 18))
-#define ST7735_COLOR_16(r, g, b) (((int)(((float)b / (float)0xFF) * 0x1F) & 0x1F) | (((int)(((float)g / (float)0xFF) * 0x3F) & 0x3F) << 5) | (((int)(((float)r / (float)0xFF) * 0x1F) & 0x1F) << 11))
-#define ST7735_COLOR_12(r, g, b) (((int)(((float)b / (float)0xFF) * 0xF) & 0xF) | (((int)(((float)g / (float)0xFF) * 0xF) & 0xF) << 4) | (((int)(((float)r / (float)0xFF) * 0xF) & 0xF) << 8))
+###### Description
+Use to set chip select pin to default CS1 SPI pin, see [`st7735_init`](st7735_init).
 
-#define ST7735_X_OFFSET_VERT 1
-#define ST7735_Y_OFFSET_VERT 2
+---
+<a name="ST7735_WIDTH"></a>
+```C
+ST7735_WIDTH
+```
 
+###### Description
+ST7735S width, set to 160.
+
+---
+<a name="ST7735_HEIGHT"></a>
+```C
+ST7735_HEIGHT
+```
+
+###### Description
+ST7735S height, set to 128.
+
+---
+<a name="ST7735_X_OFFSET_VERT"></a>
+```C
+ST7735_X_OFFSET_VERT
+```
+
+###### Description
+ST7735S offset for X axis, set to 1 (for black tab ST7735)
+
+---
+<a name="ST7735_Y_OFFSET_VERT"></a>
+```C
+ST7735_Y_OFFSET_VERT
+```
+
+###### Description
+ST7735S offset for Y axis, set to 2 (for black tab ST7735)
+
+##### Macros:
+<a name="ST7735_COLOR_18"></a>
+```C
+ST7735_COLOR_18(r, g, b)
+```
+
+---
+<a name="ST7735_COLOR_16"></a>
+```C
+ST7735_COLOR_16(r, g, b)
+```
+
+---
+<a name="ST7735_COLOR_12"></a>
+```C
+ST7735_COLOR_12(r, g, b)
+```
+
+##### Structs:
+<a name="st7735s_t"></a>
+```C
 typedef struct st7735s_s {
   uint8_t chipSelectPin;
   uint8_t dataCommandPin;
@@ -25,7 +79,11 @@ typedef struct st7735s_s {
   /* Setup for 16bit */
   uint16_t framebuffer[ST7735_HEIGHT * ST7735_WIDTH];
 } st7735s_t;
+```
 
+##### Enums:
+<a name="st7735s_command"></a>
+```C
 enum st7735s_command {
   st_command_nop              = 0x0,
   st_command_softReset        = 0x1,
@@ -69,7 +127,11 @@ enum st7735s_command {
   st_command_gammaPlus        = 0xE0,
   st_command_gammaMinus       = 0xE1
 };
+```
 
+---
+<a name="st_memDataAccessCtl"></a>
+```C
 enum st_memDataAccessCtl {
   st_memDataAccessCtl_horizontal  = 0x4,
   st_memDataAccessCtl_bgr         = 0x8,
@@ -78,13 +140,21 @@ enum st_memDataAccessCtl {
   st_memDataAccessCtl_colAddrOrd  = 0x40,
   st_memDataAccessCtl_rowAddrOrd  = 0x80
 };
+```
 
+---
+<a name="st_interPixelFormat"></a>
+```C
 enum st_interPixelFormat {
   st_interPixelFormat_12bit   = 0x3,
   st_interPixelFormat_16bit   = 0x5,
   st_interPixelFormat_18bit   = 0x6
 };
+```
 
+##### Statics:
+<a name="ST7735_FONT5X7"></a>
+```C
 static const uint8_t ST7735_FONT5X7[95][5] = {
   {0x00,0x00,0x00,0x00,0x00}, // 32 ' '
   {0x00,0x00,0x5F,0x00,0x00}, // 33 '!'
@@ -182,48 +252,64 @@ static const uint8_t ST7735_FONT5X7[95][5] = {
   {0x00,0x41,0x36,0x08,0x00}, //125 '}'
   {0x10,0x08,0x08,0x10,0x08}, //126 '~'
 };
+```
 
-/*
- * Private functions
- */
-/*
-void _st7735_select(st7735s_t* const pSt);
-
-void _st7735_deselect(st7735s_t* const pSt);
-
-void _st7735_sendCommand(st7735s_t* const pSt, const enum st7735s_command command);
-
-void _st7735_sendDataByte(st7735s_t* const pSt, const uint8_t data);
-
-void _st7735_sendData(st7735s_t* const pSt, const uint8_t* pData, const uint32_t length);
-
-void _st7735_sendDMAData(st7735s_t* const pSt, const uint8_t* pData, const uint32_t length);
-
-void _st7735_updateArea(st7735s_t* const pSt, uint8_t x, uint8_t y);
-
-void _st7735_writeArea(st7735s_t* const pSt);
-
-void _st7735_resetArea(st7735s_t* const pSt);
-*/
-
+##### Functions:
+<a name="st7735_switchInterfacePixelFormat"></a>
+```C
 void st7735_switchInterfacePixelFormat(st7735s_t* const pSt, const enum st_interPixelFormat pixelFormat); 
+```
 
+---
+<a name="st7735_reset"></a>
+```C
 void st7735_reset(st7735s_t* const pSt);
+```
 
+---
+<a name="st7735_init"></a>
+```C
 void st7735_init(st7735s_t* const pSt, uint8_t rst, uint8_t dc, uint8_t bl, uint8_t cs);
+```
 
+---
+<a name="st7735_clearFrame"></a>
+```C
 void st7735_clearFrame(st7735s_t* const pSt);
+```
 
+---
+<a name="st7735_setPixel"></a>
+```C
 void st7735_setPixel(st7735s_t* const pSt, uint8_t x, uint8_t y, uint16_t color);
+```
 
+---
+<a name="st7735_drawBuffered"></a>
+```C
 void st7735_drawBuffered(st7735s_t* const pSt);
+```
 
+---
+<a name="st7735_draw18BitPixel"></a>
+```C
 void st7735_draw18BitPixel(st7735s_t* const pSt, uint8_t x, uint8_t y, uint32_t color);
+```
 
+---
+<a name="st7735_backlight"></a>
+```C
 void st7735_backlight(st7735s_t* const pSt, uint32_t state);
+```
 
+---
+<a name="st7735_text"></a>
+```C
 void st7735_text(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, uint8_t size);
+```
 
+---
+<a name="st7735_text18Bit"></a>
+```C
 void st7735_text18Bit(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, uint8_t size);
-
-#endif
+```
