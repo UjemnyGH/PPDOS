@@ -40,12 +40,12 @@ void hd44780_init4(hd44780_t* const pHd, uint8_t rs, uint8_t en, uint8_t d4, uin
 ```
 
 ###### Description
-Initializes [`hd44780_t`](hd44780_t) struct with RS, E and D<4..7> pins info and the pins itself.
+Initializes [`hd44780_t`](#hd44780_t) struct with RS, E and D<4..7> pins info and the pins itself.
 > [!NOTE]
 > 8 bit version is not available currently as 4 bit is more efficient with pins usage. I strongly advise to use 4 bit version. 8 bit support would be added later!
 
 ###### Parameters
-- **pHd** - pointer to [`hd44780_t`](hd44780_t) struct
+- **pHd** - pointer to [`hd44780_t`](#hd44780_t) struct
 - **rs** - RS (register select) pin
 - **en** - E (enable) pin
 - **d<4..7>** - D<4..7> (data) pins
@@ -82,10 +82,10 @@ void hd44780_clear(hd44780_t* const pHd);
 ###### Description
 Clears desired HD44780 LCD from characters.
 > [!TIP]
-> Best used with [`hd44780_home`](hd44780_home) function
+> Best used with [`hd44780_home`](#hd44780_home) function
 
 ###### Parameters
-- **pHd** - pointer to desired [`hd44780_t`](hd44780_t) LCD struct, which screen would be cleared from characters 
+- **pHd** - pointer to desired [`hd44780_t`](#hd44780_t) LCD struct, which screen would be cleared from characters 
 
 ###### Example usage
 ```C
@@ -125,10 +125,10 @@ void hd44780_home(hd44780_t* const pHd);
 ###### Description
 Moves cursor to default (0) position.
 > [!TIP]
-> Best used with [`hd44780_clear`](hd44780_clear) function.
+> Best used with [`hd44780_clear`](#hd44780_clear) function.
 
 ###### Parameters
-- **pHd** - pointer to desired [`hd44780_t`](hd44780_t) LCD struct, which cursor would be moved back to default (0) position.
+- **pHd** - pointer to desired [`hd44780_t`](#hd44780_t) LCD struct, which cursor would be moved back to default (0) position.
 
 ###### Example usage
 ```C
@@ -171,7 +171,7 @@ void hd44780_cursor(hd44780_t* const pHd, uint8_t col, uint8_t row);
 Moves cursor on desired LCD to desired column and row.
 
 ###### Parameters
-- **pHd** - pointer to desired [`hd44780_t`](hd44780_t) LCD struct, which cursor would be moved to desired column and row
+- **pHd** - pointer to desired [`hd44780_t`](#hd44780_t) LCD struct, which cursor would be moved to desired column and row
 - **col** - desired column that cursor would be moved to
 - **row** - desired row that cursor would be moved to
 
@@ -211,10 +211,10 @@ void hd44780_print(hd44780_t* const pHd, const char* text);
 ```
 
 ###### Description
-Prints characters on desired [`hd44780_t`](hd44780_t) LCD screen
+Prints characters on desired [`hd44780_t`](#hd44780_t) LCD screen
 
 ###### Parameters
-- **pHd** - pointer to desired [`hd44780_t`](hd44780_t) LCD screen on which text would be printed
+- **pHd** - pointer to desired [`hd44780_t`](#hd44780_t) LCD screen on which text would be printed
 - **text** - text to be printed on LCD
 
 ###### Example usage
