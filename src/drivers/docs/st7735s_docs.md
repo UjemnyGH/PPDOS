@@ -3,7 +3,7 @@
 [**Back**](../drivers_docs.md)
 
 ##### Defines:
-<a name="ST7735_USE_SPI_DEFAULT_CS1"></a>
+<a id="ST7735_USE_SPI_DEFAULT_CS1"></a>
 ```C
 ST7735_USE_SPI_DEFAULT_CS1
 ```
@@ -12,7 +12,7 @@ ST7735_USE_SPI_DEFAULT_CS1
 Use to set chip select pin to default CS1 SPI pin, see [`st7735_init`](st7735_init).
 
 ---
-<a name="ST7735_WIDTH"></a>
+<a id="ST7735_WIDTH"></a>
 ```C
 ST7735_WIDTH
 ```
@@ -21,7 +21,7 @@ ST7735_WIDTH
 ST7735S width, set to 160.
 
 ---
-<a name="ST7735_HEIGHT"></a>
+<a id="ST7735_HEIGHT"></a>
 ```C
 ST7735_HEIGHT
 ```
@@ -30,7 +30,7 @@ ST7735_HEIGHT
 ST7735S height, set to 128.
 
 ---
-<a name="ST7735_X_OFFSET_VERT"></a>
+<a id="ST7735_X_OFFSET_VERT"></a>
 ```C
 ST7735_X_OFFSET_VERT
 ```
@@ -39,7 +39,7 @@ ST7735_X_OFFSET_VERT
 ST7735S offset for X axis, set to 1 (for black tab ST7735)
 
 ---
-<a name="ST7735_Y_OFFSET_VERT"></a>
+<a id="ST7735_Y_OFFSET_VERT"></a>
 ```C
 ST7735_Y_OFFSET_VERT
 ```
@@ -48,25 +48,25 @@ ST7735_Y_OFFSET_VERT
 ST7735S offset for Y axis, set to 2 (for black tab ST7735)
 
 ##### Macros:
-<a name="ST7735_COLOR_18"></a>
+<a id="ST7735_COLOR_18"></a>
 ```C
 ST7735_COLOR_18(r, g, b)
 ```
 
 ---
-<a name="ST7735_COLOR_16"></a>
+<a id="ST7735_COLOR_16"></a>
 ```C
 ST7735_COLOR_16(r, g, b)
 ```
 
 ---
-<a name="ST7735_COLOR_12"></a>
+<a id="ST7735_COLOR_12"></a>
 ```C
 ST7735_COLOR_12(r, g, b)
 ```
 
 ##### Structs:
-<a name="st7735s_t"></a>
+<a id="st7735s_t"></a>
 ```C
 typedef struct st7735s_s {
   uint8_t chipSelectPin;
@@ -82,7 +82,7 @@ typedef struct st7735s_s {
 ```
 
 ##### Enums:
-<a name="st7735s_command"></a>
+<a id="st7735s_command"></a>
 ```C
 enum st7735s_command {
   st_command_nop              = 0x0,
@@ -130,7 +130,7 @@ enum st7735s_command {
 ```
 
 ---
-<a name="st_memDataAccessCtl"></a>
+<a id="st_memDataAccessCtl"></a>
 ```C
 enum st_memDataAccessCtl {
   st_memDataAccessCtl_horizontal  = 0x4,
@@ -143,7 +143,7 @@ enum st_memDataAccessCtl {
 ```
 
 ---
-<a name="st_interPixelFormat"></a>
+<a id="st_interPixelFormat"></a>
 ```C
 enum st_interPixelFormat {
   st_interPixelFormat_12bit   = 0x3,
@@ -153,7 +153,7 @@ enum st_interPixelFormat {
 ```
 
 ##### Statics:
-<a name="ST7735_FONT5X7"></a>
+<a id="ST7735_FONT5X7"></a>
 ```C
 static const uint8_t ST7735_FONT5X7[95][5] = {
   {0x00,0x00,0x00,0x00,0x00}, // 32 ' '
@@ -255,61 +255,61 @@ static const uint8_t ST7735_FONT5X7[95][5] = {
 ```
 
 ##### Functions:
-<a name="st7735_switchInterfacePixelFormat"></a>
+<a id="st7735_switchInterfacePixelFormat"></a>
 ```C
 void st7735_switchInterfacePixelFormat(st7735s_t* const pSt, const enum st_interPixelFormat pixelFormat); 
 ```
 
 ---
-<a name="st7735_reset"></a>
+<a id="st7735_reset"></a>
 ```C
 void st7735_reset(st7735s_t* const pSt);
 ```
 
 ---
-<a name="st7735_init"></a>
+<a id="st7735_init"></a>
 ```C
 void st7735_init(st7735s_t* const pSt, uint8_t rst, uint8_t dc, uint8_t bl, uint8_t cs);
 ```
 
 ---
-<a name="st7735_clearFrame"></a>
+<a id="st7735_clearFrame"></a>
 ```C
 void st7735_clearFrame(st7735s_t* const pSt);
 ```
 
 ---
-<a name="st7735_setPixel"></a>
+<a id="st7735_setPixel"></a>
 ```C
 void st7735_setPixel(st7735s_t* const pSt, uint8_t x, uint8_t y, uint16_t color);
 ```
 
 ---
-<a name="st7735_drawBuffered"></a>
+<a id="st7735_drawBuffered"></a>
 ```C
 void st7735_drawBuffered(st7735s_t* const pSt);
 ```
 
 ---
-<a name="st7735_draw18BitPixel"></a>
+<a id="st7735_draw18BitPixel"></a>
 ```C
 void st7735_draw18BitPixel(st7735s_t* const pSt, uint8_t x, uint8_t y, uint32_t color);
 ```
 
 ---
-<a name="st7735_backlight"></a>
+<a id="st7735_backlight"></a>
 ```C
 void st7735_backlight(st7735s_t* const pSt, uint32_t state);
 ```
 
 ---
-<a name="st7735_text"></a>
+<a id="st7735_text"></a>
 ```C
 void st7735_text(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, uint8_t size);
 ```
 
 ---
-<a name="st7735_text18Bit"></a>
+<a id="st7735_text18Bit"></a>
 ```C
 void st7735_text18Bit(st7735s_t* const pSt, const char* text, uint8_t x, uint8_t y, uint8_t size);
 ```

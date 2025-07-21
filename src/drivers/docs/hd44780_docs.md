@@ -3,7 +3,7 @@
 [**Back**](../drivers_docs.md)
 
 ##### Structs:
-<a name="hd44780_t"></a>
+<a id="hd44780_t"></a>
 ```C
 typedef struct hd44780_s {
     uint8_t registerSelPin;
@@ -74,7 +74,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="hd44780_clear"></a>
+<a id="hd44780_clear"></a>
 ```C
 void hd44780_clear(hd44780_t* const pHd);
 ```
@@ -118,7 +118,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="hd44780_home"></a>
+<a id="hd44780_home"></a>
 ```C
 void hd44780_home(hd44780_t* const pHd);
 ```

@@ -1,7 +1,7 @@
 ### src/drivers/pcd8544.c / .h - PCD8544 (Nokia 5110) 84x48 LCD screen driver
 
 ##### Definitions:
-<a name="PCD8544_WIDTH"></a>
+<a id="PCD8544_WIDTH"></a>
 ```C
 PCD8544_WIDTH
 ```
@@ -10,7 +10,7 @@ PCD8544_WIDTH
 This defined PCD LCD screen width, which is 84
 
 ---
-<a name="PCD8544_HEIGHT"></a>
+<a id="PCD8544_HEIGHT"></a>
 ```C
 PCD8544_HEIGHT
 ```
@@ -19,7 +19,7 @@ PCD8544_HEIGHT
 This defined PCD LCD screen height, which is 48
 
 ---
-<a name="PCD8544_USE_SPI_CS1"></a>
+<a id="PCD8544_USE_SPI_CS1"></a>
 ```C
 PCD8544_USE_SPI_CS1 
 ```
@@ -92,7 +92,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="pcd_clear"></a>
+<a id="pcd_clear"></a>
 ```C
 void pcd_clear(pcd8544_t* const pPcd);
 ```
@@ -140,7 +140,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="pcd_init"></a>
+<a id="pcd_init"></a>
 ```C
 void pcd_init(pcd8544_t* const pPcd, uint8_t rst, uint8_t dc, uint8_t bl, uint8_t cs);
 ```
@@ -179,7 +179,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="pcd_setPixel"></a>
+<a id="pcd_setPixel"></a>
 ```C
 void pcd_setPixel(pcd8544_t* const pPcd, uint8_t x, uint8_t y, uint32_t state);
 ```
@@ -228,7 +228,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="pcd_draw"></a>
+<a id="pcd_draw"></a>
 ```C
 void pcd_draw(pcd8544_t* const pPcd);
 ```
@@ -272,7 +272,7 @@ void kernel_main() {
 ```
 
 ---
-<a name="pcd_text5x7"></a>
+<a id="pcd_text5x7"></a>
 ```C
 void pcd_text5x7(pcd8544_t* const pPcd, const char* text, uint8_t x, uint8_t y);
 ```
