@@ -9,7 +9,7 @@ ST7735_USE_SPI_DEFAULT_CS1
 ```
 
 ###### Description
-Use to set chip select pin to default CS1 SPI pin, see [`st7735_init`](st7735_init).
+Use to set chip select pin to default CS1 SPI pin, see [`st7735_init`](#st7735_init).
 
 ---
 <a id="ST7735_WIDTH"></a>
